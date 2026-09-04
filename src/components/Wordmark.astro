@@ -1,0 +1,45 @@
+---
+import { SITE } from '../consts';
+
+interface Props {
+  /** When set, the wordmark renders as a link (e.g. back to the homepage). */
+  href?: string;
+}
+
+const { href } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag class="wordmark" href={href}>
+  <span class="mark" aria-hidden="true"></span>
+  {SITE.name}
+</Tag>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  a.wordmark:hover {
+    color: var(--ink);
+  }
+
+  .mark {
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    /* open ring, gap at the top-right — an unclosed system */
+    border-top-color: transparent;
+    border-right-color: transparent;
+  }
+</style>

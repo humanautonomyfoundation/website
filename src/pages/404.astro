@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Wordmark from '../components/Wordmark.astro';
+---
+
+<Base title="Page not found">
+  <div class="shell">
+    <header>
+      <Wordmark href="/" />
+    </header>
+
+    <main>
+      <h1>404</h1>
+      <p>That page doesn&rsquo;t exist yet.</p>
+      <p><a href="/">Back to the homepage</a></p>
+    </main>
+  </div>
+</Base>
+
+<style>
+  .shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    max-width: var(--measure);
+    margin-inline: auto;
+    padding: clamp(1.5rem, 5vw, 4rem);
+  }
+
+  main {
+    margin-block: auto;
+    padding-block: 2rem;
+  }
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 3rem;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0 0 0.5rem;
+    color: var(--ink-muted);
+  }
+
+  a {
+    color: var(--ink);
+    text-decoration-color: var(--accent);
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+</style>
