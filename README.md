@@ -40,6 +40,7 @@ src/
   pages/404.astro      Not-found page
   styles/global.css    Design tokens (light + dark) and resets
 public/                Served as-is at the site root (favicon, robots.txt)
+docs/                  Working documents: organizational structure, concept notes
 ```
 
 Colors, spacing, and fonts are CSS custom properties defined in
