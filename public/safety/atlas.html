@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive map of protections and weak points for people and organizations using already-trained AI models.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AI Safety Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: three horizontal bands (model makers → deployers → people) split by dashed trust boundaries, on drafting-grid paper; a sticky detail rail on wide screens, a bottom sheet on phones. */
+:root {
+  --paper: #EDF0EC;
+  --grid: rgba(22, 40, 34, 0.06);
+  --panel: #FAFBF9;
+  --ink: #15201C;
+  --muted: #54625D;
+  --rule: #C3CDC8;
+  --accent: #2341B8;
+  --accent-soft: #E1E6F8;
+  --prot: #0F6B4B;
+  --prot-soft: #DCEFE5;
+  --vuln: #B3321A;
+  --vuln-soft: #F7E0D9;
+  --impact: #8F5C00;
+  --impact-soft: #F4E8CF;
+  --shadow: 0 1px 2px rgba(15, 30, 25, 0.08), 0 8px 24px rgba(15, 30, 25, 0.08);
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1412;
+    --grid: rgba(200, 230, 215, 0.045);
+    --panel: #151D1A;
+    --ink: #E1E9E5;
+    --muted: #94A49E;
+    --rule: #2A3632;
+    --accent: #93A8FF;
+    --accent-soft: #1D2646;
+    --prot: #4FCB99;
+    --prot-soft: #123022;
+    --vuln: #FF8063;
+    --vuln-soft: #3B1A12;
+    --impact: #EFB44E;
+    --impact-soft: #33270F;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1412;
+  --grid: rgba(200, 230, 215, 0.045);
+  --panel: #151D1A;
+  --ink: #E1E9E5;
+  --muted: #94A49E;
+  --rule: #2A3632;
+  --accent: #93A8FF;
+  --accent-soft: #1D2646;
+  --prot: #4FCB99;
+  --prot-soft: #123022;
+  --vuln: #FF8063;
+  --vuln-soft: #3B1A12;
+  --impact: #EFB44E;
+  --impact-soft: #33270F;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+
+/* Masthead */
+.mast { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; max-width: 70ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+h1 {
+  font-family: var(--display); font-stretch: 78%; font-weight: 800;
+  font-size: clamp(34px, 6vw, 56px); line-height: 0.98; letter-spacing: -0.01em; margin: 0;
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--muted); font-size: 16px; max-width: 64ch; }
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px;
+  font-size: 13px; color: var(--muted);
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.key.v { background: var(--vuln); transform: rotate(45deg) scale(0.85); }
+.key.p { background: var(--prot); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--prot); }
+.dot.est { background: var(--prot); }
+.dot.emg { background: linear-gradient(90deg, var(--prot) 50%, transparent 50%); }
+.dot.res { border-style: dashed; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-top: 22px; border-bottom: 1px solid var(--rule); }
+.tabs a {
+  text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px;
+  padding: 8px 14px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* Threat bar */
+.threatbar {
+  margin-top: 18px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; display: grid; gap: 10px;
+}
+.tb-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.tb-head h2 { margin: 0; font-family: var(--display); font-stretch: 85%; font-weight: 700; font-size: 17px; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--rule); background: transparent; border-radius: 999px;
+  padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--ink);
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.tdesc { margin: 0; font-size: 14px; color: var(--muted); }
+.path { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.path-col { min-width: 0; display: grid; gap: 6px; align-content: start; }
+.path-col h3 {
+  margin: 0; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.path-col.e h3 { color: var(--vuln); }
+.path-col.d h3 { color: var(--prot); }
+.path-col.i h3 { color: var(--impact); }
+.path-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.pchip {
+  font-size: 12.5px; border-radius: 4px; padding: 2px 7px; border: 0; cursor: pointer; text-align: left;
+}
+.path-col.e .pchip { background: var(--vuln-soft); }
+.path-col.d .pchip { background: var(--prot-soft); }
+.path-col.i .pchip { background: var(--impact-soft); }
+
+/* Shell */
+.shell { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; margin-top: 22px; }
+.main { min-width: 0; }
+
+/* Bands */
+.band { display: grid; gap: 12px; }
+.band-head { display: grid; gap: 2px; max-width: 70ch; }
+.band-head .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.band-head h2 { margin: 0; font-family: var(--display); font-stretch: 80%; font-weight: 750; font-size: 24px; line-height: 1.1; }
+.band-head p { margin: 0; color: var(--muted); font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+
+.boundary {
+  margin: 22px 0; display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.04em;
+}
+.boundary::before, .boundary::after { content: ""; flex: 1; border-top: 1.5px dashed var(--muted); opacity: 0.55; }
+.boundary span { white-space: normal; text-align: center; max-width: 60ch; }
+
+/* Node card */
+.node {
+  position: relative; display: grid; gap: 6px; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 12px 11px;
+  transition: opacity 0.2s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.node:hover { border-color: var(--accent); }
+.node[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.node.dim { opacity: 0.38; }
+.node-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 18px; }
+.lid { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.roles { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.role {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 3px; font-weight: 500;
+}
+.role.E { background: var(--vuln-soft); color: var(--vuln); }
+.role.D { background: var(--prot-soft); color: var(--prot); }
+.role.I { background: var(--impact-soft); color: var(--impact); }
+.node-title { font-family: var(--display); font-stretch: 85%; font-weight: 700; font-size: 16.5px; line-height: 1.15; }
+.node-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.node-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.cnt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.dots { display: inline-flex; gap: 3px; }
+.gaptag {
+  display: none; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--vuln); border: 1px dashed var(--vuln); padding: 0 5px; border-radius: 3px; width: max-content;
+}
+.show-gaps .node.gap .gaptag { display: inline-block; }
+.show-gaps .node.gap {
+  background-image: repeating-linear-gradient(135deg, transparent 0 7px, var(--vuln-soft) 7px 8px);
+}
+
+/* Detail rail */
+.detail {
+  position: sticky; top: max(16px, env(safe-area-inset-top, 0px));
+  max-height: calc(100vh - 32px); overflow: auto;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 18px;
+}
+.d-close {
+  float: right; border: 1px solid var(--rule); background: transparent; border-radius: 6px;
+  padding: 3px 9px; font-size: 13px; cursor: pointer; color: var(--muted);
+}
+.d-k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.detail h2 { margin: 4px 0 8px; font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 26px; line-height: 1.05; text-wrap: balance; }
+.detail p { margin: 0 0 10px; font-size: 14px; }
+.d-owner { color: var(--muted); font-size: 13px !important; }
+.d-role { font-size: 13px !important; padding: 8px 10px; border-radius: 6px; background: var(--accent-soft); }
+.detail h3 {
+  margin: 18px 0 8px; font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+}
+.detail h3.v { color: var(--vuln); }
+.detail h3.p { color: var(--prot); }
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.items li { display: grid; gap: 2px; font-size: 13.5px; line-height: 1.45; padding-left: 12px; border-left: 2px solid var(--rule); }
+.items.v li { border-left-color: var(--vuln); }
+.items.p li { border-left-color: var(--prot); }
+.items b { font-weight: 600; }
+.tagrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.owasp, .mat {
+  font-family: var(--mono); font-size: 10.5px; padding: 0 5px; border-radius: 3px; border: 1px solid var(--rule); color: var(--muted);
+}
+.mat { display: inline-flex; align-items: center; gap: 5px; }
+.items.p li.res { opacity: 1; }
+.show-gaps .items.p li.res { background: var(--vuln-soft); border-radius: 0 4px 4px 0; padding: 4px 6px 4px 12px; }
+.refs { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 4px; }
+.guide ol { margin: 6px 0 12px; padding-left: 20px; font-size: 14px; display: grid; gap: 6px; }
+
+/* Matrix */
+.mx-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; }
+table.mx { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 13px; }
+.mx th, .mx td { border-bottom: 1px solid var(--rule); padding: 7px 8px; text-align: center; vertical-align: middle; }
+.mx thead th { font-weight: 600; font-size: 12px; vertical-align: bottom; line-height: 1.2; }
+.mx thead th button {
+  border: 0; background: transparent; cursor: pointer; font-weight: 600; font-size: 12px; padding: 2px 4px; border-radius: 4px;
+}
+.mx thead th.col-on button { background: var(--accent); color: var(--panel); }
+.mx th.rowh { text-align: left; white-space: nowrap; }
+.mx th.rowh button { border: 0; background: transparent; cursor: pointer; text-align: left; padding: 0; font-weight: 500; }
+.mx th.rowh .lid { margin-right: 6px; }
+.mx tr.zrow th {
+  text-align: left; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); background: var(--paper);
+}
+.mx td.col-on { background: var(--accent-soft); }
+.cell { display: inline-flex; gap: 2px; }
+.cell span {
+  font-family: var(--mono); font-size: 11px; font-weight: 500; width: 18px; height: 18px; line-height: 18px;
+  border-radius: 3px; display: inline-block;
+}
+.cell .E { background: var(--vuln-soft); color: var(--vuln); }
+.cell .D { background: var(--prot-soft); color: var(--prot); }
+.cell .I { background: var(--impact-soft); color: var(--impact); }
+.drvtag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink); white-space: nowrap; background: var(--panel); margin-right: 4px; vertical-align: 1px; }
+.drvtag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dc, var(--muted)); }
+.drvtag.ai { --dc: var(--vuln); } .drvtag.bad { --dc: var(--ink); } .drvtag.acc { --dc: var(--impact); } .drvtag.sys { --dc: var(--muted); }
+.mx-note { font-size: 13px; color: var(--muted); margin: 0 0 12px; max-width: 75ch; }
+
+.foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 90ch; }
+.foot p { margin: 0; }
+
+/* As-of chip, provenance badges and their key */
+.asof { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--impact); background: var(--impact-soft); border-radius: 6px; padding: 4px 10px; width: max-content; max-width: 100%; }
+.provkey { margin: 0; font-size: 13px; color: var(--muted); }
+.ourtag { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10.5px; line-height: 1.5; letter-spacing: 0.02em; padding: 0 7px; border-radius: 999px; border: 1px dashed; vertical-align: middle; white-space: nowrap; font-weight: 500; text-transform: none; }
+.ourtag.chat { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.ourtag.idea { color: var(--impact); border-color: var(--impact); background: var(--impact-soft); }
+.band-head h2 .ourtag, .tb-head h2 .ourtag { margin-left: 4px; font-stretch: normal; }
+.legend .mnote { flex-wrap: wrap; }
+.detail .d-mat { margin-top: 10px; }
+
+/* Expert views */
+.xp-sec { margin-top: 40px; display: grid; gap: 12px; }
+.xp { list-style: none; margin: 0; padding: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; max-width: 96ch; }
+.xp li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--rule); font-size: 14.5px; overflow-wrap: anywhere; }
+.xp li:last-child { border-bottom: 0; }
+.xp .n { font-family: var(--mono); font-size: 11px; color: var(--accent); padding-top: 3px; }
+.xp .src { font-weight: 500; }
+.xp-more { margin: 0; font-size: 14px; }
+
+/* System diagram (data-flow notation) */
+.sys { display: grid; gap: 12px; margin: 0; }
+.sys-story {
+  margin: 0; padding: 12px 14px; background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--vuln);
+  border-radius: 0 8px 8px 0; font-size: 14.5px; max-width: 86ch;
+}
+.sys-story b { font-weight: 600; }
+.sys-scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; }
+.sys-scroll svg { display: block; width: 100%; min-width: 940px; height: auto; }
+.sys-hint { display: none; margin: 0; font-size: 13px; color: var(--muted); }
+.sys-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); align-items: center; }
+.sys-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.lg-entity { width: 22px; height: 14px; border: 2px solid var(--ink); }
+.lg-process { width: 22px; height: 14px; border: 1.3px solid var(--ink); border-radius: 6px; }
+.lg-store { width: 22px; height: 14px; border-top: 1.3px solid var(--ink); border-bottom: 1.3px solid var(--ink); border-left: 1.3px solid var(--ink); }
+.lg-tb { width: 26px; border-top: 2px dashed var(--vuln); }
+.lg-flow { width: 26px; border-top: 1.5px solid var(--muted); position: relative; }
+.lg-hot { width: 26px; border-top: 2.5px dashed var(--vuln); }
+.sys figcaption { font-size: 13px; color: var(--muted); max-width: 86ch; }
+
+.zone-out { fill: var(--vuln-soft); opacity: 0.45; }
+.tb { fill: none; stroke: var(--vuln); stroke-width: 1.5; stroke-dasharray: 7 5; opacity: 0.85; }
+.zl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; fill: var(--muted); }
+.zl.tbl { fill: var(--vuln); }
+.cmp { cursor: pointer; transition: opacity 0.2s ease; }
+.cmp:focus { outline: none; }
+.cmp .shape { fill: var(--panel); stroke: var(--ink); stroke-width: 1.3; }
+.cmp.entity .shape { stroke-width: 2.2; }
+.cmp .hit { fill: var(--panel); }
+.cmp .store-line { fill: none; stroke: var(--ink); stroke-width: 1.3; }
+.cmp .t { font-family: var(--body); font-weight: 600; font-size: 13px; fill: var(--ink); }
+.cmp .s { font-family: var(--body); font-size: 11px; fill: var(--muted); }
+.cmp .sid { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+.cmp:hover .shape, .cmp:hover .store-line, .cmp:focus-visible .shape, .cmp:focus-visible .store-line { stroke: var(--accent); }
+.cmp.r-I .shape, .cmp.r-I .hit { fill: var(--impact-soft); }
+.cmp.r-I .shape, .cmp.r-I .store-line { stroke: var(--impact); }
+.cmp.r-D .shape, .cmp.r-D .hit { fill: var(--prot-soft); }
+.cmp.r-D .shape, .cmp.r-D .store-line { stroke: var(--prot); }
+.cmp.r-E .shape, .cmp.r-E .hit { fill: var(--vuln-soft); }
+.cmp.r-E .shape, .cmp.r-E .store-line { stroke: var(--vuln); }
+.cmp.sel .shape, .cmp.sel .store-line { stroke: var(--accent); stroke-width: 2.8; }
+.cmp.dim { opacity: 0.3; }
+.badge text { font-family: var(--mono); font-size: 10px; font-weight: 500; fill: var(--panel); }
+.badge.E rect { fill: var(--vuln); }
+.badge.D rect { fill: var(--prot); }
+.badge.I rect { fill: var(--impact); }
+.edge .ln { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+.edge.hot .ln { stroke: var(--vuln); stroke-width: 2.6; stroke-dasharray: 8 5; animation: flow 0.9s linear infinite; }
+.edge.cold { opacity: 0.22; }
+.elbl { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.edge.hot .elbl { fill: var(--vuln); font-weight: 500; }
+.mk { fill: var(--muted); }
+.mk-hot { fill: var(--vuln); }
+@keyframes flow { to { stroke-dashoffset: -13; } }
+@media (max-width: 980px) { .sys-hint { display: block; } }
+@media (prefers-reduced-motion: reduce) { .edge.hot .ln { animation: none; } }
+
+/* Wide screens, System view: the detail rail becomes a drawer so the diagram gets the full width */
+@media (min-width: 901px) {
+  .view-system .shell { grid-template-columns: minmax(0, 1fr); }
+  .view-system .detail {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 20; width: min(400px, 92vw); max-height: none;
+    border-radius: 0; border-width: 0 0 0 1px; box-shadow: var(--shadow);
+    padding: calc(18px + env(safe-area-inset-top, 0px)) calc(18px + env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) 18px;
+    transform: translateX(105%); visibility: hidden; transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  }
+  .view-system .detail.open { transform: none; visibility: visible; transition: transform 0.25s ease; }
+}
+
+/* Icons and illustration */
+.ico { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ico .fill { fill: currentColor; stroke: none; }
+.nicon {
+  width: 30px; height: 30px; border-radius: 7px; display: inline-grid; place-items: center; flex: none;
+  background: var(--accent-soft); color: var(--accent);
+}
+.nicon svg { width: 18px; height: 18px; }
+.nicon.big { width: 44px; height: 44px; border-radius: 10px; margin-bottom: 10px; }
+.nicon.big svg { width: 26px; height: 26px; }
+.nt-l { display: inline-flex; align-items: center; gap: 8px; }
+.med { color: var(--ink); }
+.med circle { fill: var(--panel); stroke: var(--ink); stroke-width: 1.3; }
+.med .ico { stroke-width: 2.4; }
+.cmp.r-I .med { color: var(--impact); } .cmp.r-I .med circle { stroke: var(--impact); }
+.cmp.r-D .med { color: var(--prot); } .cmp.r-D .med circle { stroke: var(--prot); }
+.cmp.r-E .med { color: var(--vuln); } .cmp.r-E .med circle { stroke: var(--vuln); }
+.cmp.sel .med { color: var(--accent); } .cmp.sel .med circle { stroke: var(--accent); stroke-width: 2.2; }
+
+.mast-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 20px 40px; align-items: center; }
+.cheese { margin: 0; display: grid; gap: 6px; }
+.cheese svg { display: block; width: 100%; height: auto; }
+.cheese figcaption { font-size: 13px; color: var(--muted); }
+.ch-face { fill: var(--panel); stroke: var(--ink); stroke-width: 1.2; fill-rule: evenodd; stroke-linejoin: round; }
+.ch-side { fill: var(--rule); stroke: var(--ink); stroke-width: 1.2; stroke-linejoin: round; }
+.ch-a { fill: none; stroke: var(--vuln); stroke-width: 2.5; stroke-dasharray: 8 5; animation: flow 0.9s linear infinite; }
+.ch-b { fill: none; stroke: var(--vuln); stroke-width: 2.5; stroke-dasharray: 8 5; opacity: 0.7; }
+.ch-stop { fill: var(--prot); }
+.ch-harm { fill: var(--impact); }
+.ch-lbl { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+.ch-t { font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.ch-t.a { fill: var(--vuln); } .ch-t.b { fill: var(--prot); } .ch-t.h { fill: var(--impact); }
+@media (max-width: 860px) { .mast-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .ch-a { animation: none; } }
+
+/* Phones: rail becomes a bottom sheet */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .path { grid-template-columns: minmax(0, 1fr); }
+  .detail {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 20;
+    max-height: 78vh; border-radius: 16px 16px 0 0; border-bottom: 0; box-shadow: var(--shadow);
+    padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    transform: translateY(105%); visibility: hidden; transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  }
+  .detail.open { transform: none; visibility: visible; transition: transform 0.25s ease; }
+  .detail .guide { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .node, .detail { transition: none !important; }
+}
+</style>
+<!-- haf-nav -->
+<style>
+.haf-bar { border-bottom: 1px solid var(--rule, var(--line, rgba(127,127,127,.3))); font: 500 12px/1.2 var(--mono, ui-monospace, Menlo, monospace); letter-spacing: .06em; text-transform: uppercase; }
+.haf-bar > div { max-width: var(--haf-w, 1240px); margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.haf-bar a { color: var(--muted, inherit); text-decoration: none; }
+.haf-bar a:hover { color: var(--ink, inherit); }
+</style>
+</head>
+<body>
+<!-- haf-nav -->
+<nav class="haf-bar" aria-label="Site" style="--haf-w:1320px"><div><a href="./">&larr; AI Safety index</a><a href="/">Human Autonomy Foundation</a></div></nav>
+
+
+<div class="wrap" id="app">
+  <header class="mast-grid">
+  <div class="mast">
+    <div class="eyebrow">Threat map · v1 · Oct 2026 · <a href="landscape.html">Start here: AI Risk Landscape</a></div>
+    <h1>AI Safety Atlas</h1>
+    <p class="lede">Eighteen layers, from the data a model learns from to the society that lives with it. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> The focus is on protecting people and organizations that use models someone else has already trained. <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> Tap a layer to see its weak points and defenses, or pick a threat to trace where it gets in, what can stop it, and where the harm lands.</p>
+    <span class="asof">Reviewed against expert sources, 31 October 2026</span>
+    <p class="provkey">Badges: <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> topics the editors chose to focus on · <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> our own framing or judgment, not from a published source. Everything else is drawn from cited sources. For the expert survey behind this page, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+    <div class="legend" aria-label="Legend">
+      <span><i class="key v"></i>Weak points</span>
+      <span><i class="key p"></i>Defenses</span>
+      <span><i class="dot est"></i>Established</span>
+      <span><i class="dot emg"></i>Emerging</span>
+      <span><i class="dot res"></i>Research stage</span>
+      <span class="mnote">Maturity shows how widely a defense is used, not proof that it works. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></span>
+    </div>
+  </div>
+  <figure class="cheese">
+    <div id="cheese"></div>
+    <figcaption>James Reason's Swiss cheese model from safety engineering. Every layer has holes; harm gets through only where the holes line up. Applying it to these AI layers is our framing. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></figcaption>
+  </figure>
+  </header>
+
+  <nav class="tabs" aria-label="Views">
+    <a href="#map" id="tab-map">Map</a>
+    <a href="#system" id="tab-system">System</a>
+    <a href="#matrix" id="tab-matrix">Matrix</a>
+  </nav>
+
+  <section class="threatbar" aria-label="Trace a threat">
+    <div class="tb-head">
+      <h2>Trace a threat <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+      <label class="toggle" for="gaps"><input type="checkbox" id="gaps"> Mark thin defenses</label>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="tdesc" id="tdesc"></p>
+    <div class="path" id="path"></div>
+  </section>
+
+  <div class="shell">
+    <main class="main">
+      <div id="view-map"></div>
+      <div id="view-system" hidden></div>
+      <div id="view-matrix" hidden></div>
+    </main>
+    <aside class="detail" id="detail" aria-live="polite"></aside>
+  </div>
+
+  <section class="xp-sec" aria-labelledby="xp-h">
+    <header class="band-head">
+      <span class="k">Expert views</span>
+      <h2 id="xp-h">What the research says</h2>
+      <p>Security agencies and the major labs agree that prompt injection is not solved. They advise limiting what an AI system can do, rather than counting on filters to catch every attack.</p>
+    </header>
+    <ol class="xp">
+      <li><span class="n">01</span><span>The UK's National Cyber Security Centre says AI models cannot reliably tell instructions apart from data, so prompt injection "may never be totally mitigated" and organizations should limit what an AI system can do. <a class="src" href="https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection" target="_blank" rel="noopener">NCSC, Dec 2025</a></span></li>
+      <li><span class="n">02</span><span>OpenAI, Anthropic and Google all said in late 2025 that AI browser agents can still be tricked by instructions hidden in web pages. <a class="src" href="https://techcrunch.com/2025/12/22/openai-says-ai-browsers-may-always-be-vulnerable-to-prompt-injection-attacks/" target="_blank" rel="noopener">TechCrunch on OpenAI</a>; <a class="src" href="https://www.anthropic.com/research/prompt-injection-defenses" target="_blank" rel="noopener">Anthropic</a>; <a class="src" href="https://blog.google/security/architecting-security-for-agentic/" target="_blank" rel="noopener">Google</a></span></li>
+      <li><span class="n">03</span><span>Security researcher Simon Willison warns that an agent is dangerous when it has private data, reads untrusted content and can send information out, so no single agent should have all three; Meta's "Rule of Two" gives the same advice. <a class="src" href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/" target="_blank" rel="noopener">Willison, Jun 2025</a>; <a class="src" href="https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/" target="_blank" rel="noopener">Willison on Meta's Rule of Two</a></span></li>
+      <li><span class="n">04</span><span>When researchers from OpenAI, Anthropic and Google DeepMind attacked 12 published defenses with methods tailored to each, most were bypassed more than 90% of the time, so this page's "Established" label on input classifiers and guard models means widely used, not proven to work. <a class="src" href="https://arxiv.org/abs/2510.09023" target="_blank" rel="noopener">Nasr et al., The Attacker Moves Second</a>; <a class="src" href="https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/" target="_blank" rel="noopener">Willison summary</a></span></li>
+      <li><span class="n">05</span><span>The most promising defenses rebuild the system so untrusted text can never change what the agent decides to do, and Google DeepMind's CaMeL did this while still completing 77% of test tasks, against 84% with no protection. <a class="src" href="https://arxiv.org/abs/2503.18813" target="_blank" rel="noopener">CaMeL paper, arXiv 2503.18813</a></span></li>
+      <li><span class="n">06</span><span>The cyber agencies of the US, UK, Canada, Australia and New Zealand jointly advise giving AI agents only the access they need, human sign-off for high-impact actions, and a verifiable identity with short-lived credentials. <a class="src" href="https://content.govdelivery.com/accounts/USDHSCISA/bulletins/41544ff" target="_blank" rel="noopener">CISA, May 2026</a>; <a class="src" href="https://www.mayerbrown.com/en/insights/publications/2026/06/multi-agency-guidance-on-securing-agentic-ai-systems" target="_blank" rel="noopener">Mayer Brown summary</a></span></li>
+      <li><span class="n">07</span><span>Add-ons for AI agents are a new route for malware: a fake email connector secretly copied users' emails to an attacker in 2025, and hundreds of malicious skills for the OpenClaw agent spread info-stealing malware in 2026. <a class="src" href="https://www.csoonline.com/article/4064009/trust-on-mcp-takes-first-in-the-wild-hit-via-squatted-postmark-connector.html" target="_blank" rel="noopener">CSO Online</a>; <a class="src" href="https://unit42.paloaltonetworks.com/?p=182742" target="_blank" rel="noopener">Unit 42</a></span></li>
+      <li><span class="n">08</span><span>In July 2026 an AI agent driven by OpenAI models, under test for its hacking skills, escaped its test environment and got into Hugging Face's production systems through ordinary cloud weaknesses such as an over-powered shared credential. <a class="src" href="https://huggingface.co/blog/agent-intrusion-technical-timeline" target="_blank" rel="noopener">Hugging Face</a>; <a class="src" href="https://www.malwarebytes.com/blog/news/2026/07/openais-agent-escaped-its-sandbox-during-a-security-test" target="_blank" rel="noopener">Malwarebytes</a></span></li>
+      <li><span class="n">09</span><span>In 2025 a single email could make Microsoft 365 Copilot leak company data with no clicks at all, because the attack slipped past its injection filter and link controls, so limits on which links and images an AI can load matter as much as the model. <a class="src" href="https://arxiv.org/html/2509.10540v1" target="_blank" rel="noopener">EchoLeak paper</a></span></li>
+      <li><span class="n">10</span><span>In a 2025 study, as few as 250 planted documents were enough to give AI models of every size tested, from 600 million to 13 billion parameters, a hidden trigger. <a class="src" href="https://arxiv.org/abs/2510.07192" target="_blank" rel="noopener">Souly et al., arXiv 2510.07192</a></span></li>
+    </ol>
+    <p class="xp-more">For the full survey of expert views, with dates and caveats, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+  </section>
+
+  <footer class="foot">
+    <p>Maturity labels are our rough judgments as of October 2026. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> They measure adoption, not proven effectiveness, so a widely used defense can still be easy to bypass. Established means widely used in production; emerging means in use but immature or inconsistent; research stage means mostly papers and prototypes. "Thin defenses" marks layers with at most one established defense.</p>
+    <p>The 18 layers, the threat roles (entry, defense, impact), the drivers and the System view stories are our own framing. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> OWASP, NIST and MITRE ATLAS each use their own taxonomies.</p>
+    <p>Tags like LLM01:2026 refer to the <a href="https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/" target="_blank" rel="noopener">OWASP Top 10 for LLM Applications, 2026 edition</a> (Aug 2026). It renumbers most entries from the <a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">2025 edition</a>; for example, Supply Chain moved from LLM03 to LLM04 and Excessive Agency from LLM06 to LLM03. Tags like ASI01 refer to the <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/" target="_blank" rel="noopener">OWASP Top 10 for Agentic Applications</a> (Dec 2025). Related frameworks: <a href="https://doi.org/10.6028/NIST.AI.600-1" target="_blank" rel="noopener">NIST AI 600-1</a>, <a href="https://csrc.nist.gov/pubs/ai/100/2/e2025/final" target="_blank" rel="noopener">NIST AI 100-2 E2025</a>, <a href="https://atlas.mitre.org" target="_blank" rel="noopener">MITRE ATLAS</a> and the Five Eyes agencies' <a href="https://content.govdelivery.com/accounts/USDHSCISA/bulletins/41544ff" target="_blank" rel="noopener">Careful Adoption of Agentic AI Services</a> (May 2026).</p>
+    <p>For robots, persuasion, engineered biology, superintelligence and other large-scale scenarios, see the companion page <a href="pathways.html">AI Catastrophe Pathways</a>. For sector-by-sector detail on power, water, health, finance, elections and more, see <a href="society.html">Society & Critical Systems</a>. For who sets the rules, see the <a href="governance.html">AI Governance Map</a>; for how safety is tested, see <a href="measuring.html">Measuring AI Safety</a>; for who works on it, see <a href="ecosystem.html">AI Safety Ecosystem</a>.</p>
+  </footer>
+</div>
+
+<script>
+const ZONES = [
+  { id: "lab", k: "Upstream", title: "Model makers",
+    sub: "Labs train, align, test and release the model. Everyone downstream inherits what happens here.",
+    after: "Trust boundary · the model is handed over as an API or as downloadable weights" },
+  { id: "deploy", k: "Your deployment", title: "Deployers", tag: "chat",
+    sub: "Everything between the model and your users. Whether you call a hosted API or run weights on your own servers, these layers are yours to secure.",
+    after: "Trust boundary · output reaches people, organizations and other systems" },
+  { id: "people", k: "Downstream", title: "People & world",
+    sub: "Where the benefits and the harms finally land." }
+];
+
+const OWNER = { lab: "Model developers (labs and open-weight publishers)", deploy: "You, the deployer", people: "Users, families, organizations, regulators" };
+
+// v: [title, description, OWASP tags separated by spaces]; p: [title, description, maturity]
+// LLMxx:2026 = OWASP Top 10 for LLM Applications 2026; ASIxx = OWASP Top 10 for Agentic Applications (Dec 2025)
+const NODES = [
+  { id: "data", zone: "lab", title: "Training data", short: "What the model learns from.",
+    desc: "Web text, code, books and synthetic data. It becomes the model's knowledge and its habits.",
+    v: [["Poisoning and backdoors", "Planted examples can teach hidden trigger behavior. A 2025 study found that about 250 poisoned documents could backdoor models of every size it tested, from 600 million to 13 billion parameters. It did not test the largest frontier models.", "LLM05:2026"],
+        ["Hazardous knowledge", "Detailed bio, chemical or cyber knowledge gets learned along with everything else."],
+        ["Memorized private data", "Personal or proprietary text can later be recalled word for word.", "LLM02:2026"],
+        ["Skewed coverage", "Gaps and biases in the data become gaps and biases in the answers."]],
+    p: [["Filtering and deduplication", "Remove low-quality, toxic and repeated text before training.", "est"],
+        ["Data provenance", "Track where each source came from and under what license.", "emg"],
+        ["Hazardous-content filtering", "Strip dangerous technical material before pretraining instead of relying only on refusals later.", "emg"],
+        ["Poison detection", "Find planted samples or triggers inside enormous datasets.", "res"]],
+    refs: [["Poisoning attacks need a near-constant number of samples", "https://arxiv.org/abs/2510.07192"]] },
+
+  { id: "posttrain", zone: "lab", title: "Alignment training", short: "Shaping how the model behaves.",
+    desc: "RLHF, DPO, Constitutional AI and character training turn a raw text predictor into an assistant with values and limits.",
+    v: [["Sycophancy", "Training on human ratings teaches models to please the rater, including agreeing when they shouldn't."],
+        ["Reward hacking", "The model learns to score well on the training signal instead of doing the intended task."],
+        ["Shallow safety", "Fine-tuning on a small number of examples can strip safety behavior back out."],
+        ["Alignment faking", "A model can comply during training to avoid having its values changed."]],
+    p: [["Harmlessness training (RLHF, DPO)", "Preference training that rewards refusing clearly harmful requests.", "est"],
+        ["Constitutional AI", "Written principles and AI feedback replace much of the human rating.", "est"],
+        ["Character and values training", "Training on a rich written description of values and judgment rather than rules alone.", "emg"],
+        ["Scalable oversight", "Debate, AI critique and weak-to-strong methods for supervising models smarter than the supervisors.", "res"]],
+    refs: [["Constitutional AI", "https://arxiv.org/abs/2212.08073"], ["Towards Understanding Sycophancy", "https://arxiv.org/abs/2310.13548"], ["Fine-tuning compromises safety", "https://arxiv.org/abs/2310.03693"]] },
+
+  { id: "evals", zone: "lab", title: "Pre-release testing", short: "Finding problems before launch.",
+    desc: "Dangerous-capability evaluations, red-teaming and outside testing that decide whether and how a model ships.",
+    v: [["Eval awareness and sandbagging", "Models may notice they are being tested and behave differently, or underperform on purpose."],
+        ["Unknown unknowns", "Tests only find what someone thought to look for."],
+        ["Contaminated benchmarks", "Test questions leak into training data and inflate scores."]],
+    p: [["Capability thresholds", "Dangerous-capability evals tied to scaling policies that require stronger safeguards at each level.", "est"],
+        ["Third-party testing", "Government institutes and independent groups test models before release.", "emg"],
+        ["Automated red-teaming", "Models generate attacks and test cases at scale.", "emg"],
+        ["Safety cases", "A structured, evidence-backed argument that a system is safe enough to deploy.", "res"]],
+    refs: [["Anthropic Responsible Scaling Policy", "https://www.anthropic.com/news/anthropics-responsible-scaling-policy"], ["Frontier models are capable of in-context scheming", "https://arxiv.org/abs/2412.04984"]] },
+
+  { id: "interp", zone: "lab", title: "Interpretability", short: "Looking inside the network.",
+    desc: "Tools that read what a model represents and how it reasons, instead of trusting its outputs alone.",
+    v: [["Partial view", "Today's tools explain only a fraction of what a model computes."],
+        ["Misleading explanations", "A feature or circuit can look meaningful and still miss what the model actually relies on."],
+        ["Obfuscation", "Training a model against a monitor can teach it to hide its intent rather than drop it."]],
+    p: [["Chain-of-thought monitoring", "Reading a reasoning model's visible thinking for signs of misbehavior.", "emg"],
+        ["Sparse autoencoder features", "Pulling human-readable concepts out of model activations.", "emg"],
+        ["Circuit tracing", "Attribution graphs that follow how a model reaches an answer step by step.", "res"],
+        ["Interpretable by design", "Weight-sparse or concept-bottleneck models whose workings are readable from the start.", "res"]],
+    refs: [["Scaling Monosemanticity", "https://transformer-circuits.pub/2024/scaling-monosemanticity/"], ["On the Biology of a Large Language Model", "https://transformer-circuits.pub/2025/attribution-graphs/biology.html"], ["Monitoring reasoning models for misbehavior", "https://arxiv.org/abs/2503.11926"], ["Weight-sparse transformers", "https://arxiv.org/abs/2511.13653"]] },
+
+  { id: "release", zone: "lab", title: "Release & weights", short: "How the model leaves the lab.",
+    desc: "API-only access keeps the lab in the loop. Open weights let anyone download, run and modify the model.",
+    v: [["Weight theft", "Stolen weights bypass every safeguard the lab runs."],
+        ["Safeguards fine-tuned away", "Refusals in open-weight models can be trained out, and a release can't be recalled."],
+        ["Distillation through the API", "Large volumes of outputs can be used to copy a model's abilities."]],
+    p: [["Usage policies and abuse monitoring", "Account-level detection of misuse on hosted APIs.", "est"],
+        ["Staged release", "Limited access first, wider release as risks are understood.", "est"],
+        ["Weight security", "Treating weights like crown-jewel secrets, with insider and nation-state threat models.", "emg"],
+        ["Tamper-resistant safeguards", "Safety behavior in open weights that survives fine-tuning.", "res"]],
+    refs: [["Activating ASL-3 protections", "https://www.anthropic.com/news/activating-asl3-protections"], ["Tamper-resistant safeguards for open-weight LLMs", "https://arxiv.org/abs/2408.00761"]] },
+
+  { id: "supply", zone: "deploy", title: "Model supply chain", short: "Where your weights and parts come from.",
+    desc: "Base models, fine-tunes, adapters, libraries and tool servers you pull in. Matters most when you run models on your own hardware.",
+    v: [["Code hidden in model files", "Pickle-based model files (still common for PyTorch checkpoints) can run arbitrary code when loaded. In 2025, malicious pickles on Hugging Face evaded its Picklescan scanner.", "LLM04:2026"],
+        ["Backdoored or look-alike models", "A fine-tune or a near-identical repo name can carry planted behavior.", "LLM04:2026"],
+        ["Compromised dependencies", "Libraries, plugins and tool servers are part of the attack surface."]],
+    p: [["Safe formats and verified sources", "Use safetensors and models from publishers you can verify.", "est"],
+        ["Pinning and scanning", "Pin exact versions and scan downloaded artifacts before use. Pinning is dependable, but scanning is only partial: a broken pickle file fooled Hugging Face's scanner in 2025, and an agent skill padded to 22 MB passed malware scans in 2026.", "est"],
+        ["AI bill of materials", "Record every model, dataset and dependency in a deployment.", "emg"],
+        ["Backdoor detection in weights", "Inspect a model for hidden triggers before trusting it.", "res"]],
+    refs: [["safetensors", "https://github.com/huggingface/safetensors"], ["Malware in a pickle model on Hugging Face (ReversingLabs)", "https://www.reversinglabs.com/blog/rl-identifies-malware-ml-model-hosted-on-hugging-face"], ["Malicious OpenClaw agent skills (Unit 42)", "https://unit42.paloaltonetworks.com/?p=182742"], ["OWASP Top 10 for LLM Applications 2026", "https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/"]] },
+
+  { id: "sysprompt", zone: "deploy", title: "App design & system prompt", short: "The rules your app gives the model.",
+    desc: "Instructions, roles and boundaries set by your application before any user says a word.",
+    v: [["System prompt leakage", "Anything in the prompt, including keys or internal rules, can be coaxed out.", "LLM08:2026"],
+        ["Jailbreaks", "Users talk the model out of the intended behavior."],
+        ["Prompt as security boundary", "Rules that exist only in prose can be argued around."]],
+    p: [["Keep secrets out of prompts", "Credentials and sensitive logic live in code, never in the prompt.", "est"],
+        ["Enforce rules in code", "Permissions and limits are checked by the application, not left to the model.", "est"],
+        ["Instruction hierarchy", "Provider training that ranks system instructions above user and tool text.", "emg"]],
+    refs: [["The Instruction Hierarchy", "https://arxiv.org/abs/2404.13208"]] },
+
+  { id: "input", zone: "deploy", title: "User input", short: "What people type and upload.",
+    desc: "Messages, files and images coming from users, before they reach the model.",
+    v: [["Direct prompt injection", "Typed instructions that try to override the app's rules.", "LLM01:2026"],
+        ["Oversharing", "People paste customer data, health details or secrets into a hosted model.", "LLM02:2026"],
+        ["Resource abuse", "Huge or repeated inputs drive up cost or knock the service over.", "LLM06:2026"]],
+    p: [["Input classifiers", "Small models such as Prompt Guard flag known injection and jailbreak patterns. They raise the cost of an attack, but adaptive attacks bypassed every one tested in 2025.", "est"],
+        ["Personal data redaction", "Detect and strip personal information before it leaves your network.", "est"],
+        ["Rate limits and quotas", "Caps on size, frequency and spend per user.", "est"]],
+    refs: [["OWASP LLM01: Prompt Injection", "https://genai.owasp.org/llm-top-10/"], ["Prompt injection is not SQL injection (UK NCSC)", "https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"]] },
+
+  { id: "context", zone: "deploy", title: "Retrieved content & memory", short: "Everything else the model reads.",
+    desc: "Documents, web pages, emails, tool results and long-term memory pulled into the model's context.",
+    v: [["Indirect prompt injection", "Instructions hidden in a web page, email or document the model reads.", "LLM01:2026 ASI01"],
+        ["Vector store poisoning and leaks", "Planted documents skew answers, or one user's data surfaces for another.", "LLM09:2026"],
+        ["Memory poisoning", "A bad instruction saved to long-term memory keeps coming back in later sessions.", "ASI06"]],
+    p: [["Per-user access control", "Retrieval only returns what the current user is allowed to see.", "est"],
+        ["Marking untrusted content", "Spotlighting and delimiting so the model treats retrieved text as data. Against fixed attacks it cut injection success from over 50% to under 2%, but adaptive attacks got past it in 2025.", "emg"],
+        ["Content provenance labels", "Tag where every piece of context came from.", "emg"],
+        ["Separate planning from untrusted data", "Designs like CaMeL where untrusted text can never change what the agent decides to do.", "res"]],
+    refs: [["Spotlighting", "https://arxiv.org/abs/2403.14720"], ["CaMeL: Defeating prompt injections by design", "https://arxiv.org/abs/2503.18813"], ["Design patterns for securing LLM agents against prompt injection", "https://arxiv.org/abs/2506.08837"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["Prompt injection is not SQL injection (UK NCSC)", "https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection"]] },
+
+  { id: "inference", zone: "deploy", title: "The model at runtime", short: "Hosted API or your own servers.",
+    desc: "With a hosted API, the provider runs safety classifiers and keeps logs under its terms. On your own servers there is no provider in the loop, so every safeguard is yours to run.",
+    v: [["Provider data retention", "Hosted: prompts and outputs may be logged and kept."],
+        ["Silent model updates", "Hosted: behavior shifts when the provider updates the model."],
+        ["Missing safeguards", "On-premises: the provider-side filters you might assume are simply absent."],
+        ["Unbounded consumption", "Expensive requests run up costs or deny service.", "LLM06:2026"]],
+    p: [["Zero-data-retention terms", "Enterprise agreements that limit what the provider stores.", "est"],
+        ["Provider-side classifiers", "Hosted models screen for abuse before and after generation. Red-teamers spent an estimated 3,000+ hours on Anthropic's Constitutional Classifiers without finding a universal jailbreak; these target misuse, not prompt injection.", "est"],
+        ["Version pinning and regression evals", "Lock the model version and re-test before upgrading.", "est"],
+        ["Network isolation", "On-premises: block outbound traffic the model server doesn't need. Isolation must also cover allowed exits such as package mirrors; in July 2026 an OpenAI evaluation agent escaped through one.", "est"],
+        ["Credential and cloud hygiene", "Use short-lived credentials, keep secrets out of environment variables, block cloud metadata endpoints and forbid privileged containers. Missing basics like these let an escaped agent gain cluster-admin at Hugging Face in July 2026.", "est"]],
+    refs: [["NIST AI 600-1: Generative AI Profile", "https://doi.org/10.6028/NIST.AI.600-1"], ["Constitutional Classifiers", "https://arxiv.org/abs/2501.18837"], ["Agent intrusion technical timeline (Hugging Face)", "https://huggingface.co/blog/agent-intrusion-technical-timeline"], ["Careful Adoption of Agentic AI Services (Five Eyes, May 2026)", "https://content.govdelivery.com/accounts/USDHSCISA/bulletins/41544ff"]] },
+
+  { id: "output", zone: "deploy", title: "Model output", short: "What comes back.",
+    desc: "The model's response, checked or unchecked, before it reaches a person or another system.",
+    v: [["Harmful content", "Responses that break policy or cause harm."],
+        ["Hallucination", "Confident, wrong answers.", "LLM07:2026"],
+        ["Improper output handling", "Generated code, SQL or HTML executed or rendered without checks.", "LLM10:2026"],
+        ["Sensitive information disclosure", "Private data from context or training shows up in a reply.", "LLM02:2026"]],
+    p: [["Guard models and guardrails", "Guard classifiers such as Llama Guard, or guardrail toolkits such as NeMo Guardrails, screen inputs and responses. Adaptive attacks bypassed published defenses of this kind in 2025.", "est"],
+        ["Encoding and schema validation", "Treat output as untrusted input to the next system.", "est"],
+        ["Egress and rendering controls", "Allow links and images only from approved sites, set a strict content security policy, and never auto-fetch URLs the model writes. In 2025 a single email made Microsoft 365 Copilot leak data with zero clicks by slipping past its link controls (EchoLeak).", "emg"],
+        ["Grounding and citation checks", "Verify claims against the sources the model was given.", "emg"],
+        ["Calibrated uncertainty", "Models that reliably say when they don't know.", "res"]],
+    refs: [["Llama Guard", "https://arxiv.org/abs/2312.06674"], ["NeMo Guardrails", "https://github.com/NVIDIA/NeMo-Guardrails"], ["Constitutional Classifiers", "https://arxiv.org/abs/2501.18837"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["EchoLeak: zero-click data theft from Microsoft 365 Copilot", "https://arxiv.org/html/2509.10540v1"]] },
+
+  { id: "tools", zone: "deploy", title: "Tools & actions", short: "What the model can actually do.",
+    desc: "Running code, sending email, browsing, calling APIs, moving money. This is where text turns into consequences.",
+    v: [["Excessive agency", "More permissions, tools or autonomy than the task needs.", "LLM03:2026"],
+        ["Data exfiltration", "Private data, untrusted content and a way to send data out, all in one agent: the lethal trifecta."],
+        ["Tool poisoning", "Malicious tool descriptions or tool servers that steer the agent. A description can also change after you approve it.", "ASI04"],
+        ["Confused deputy", "The agent uses your access on an attacker's behalf.", "ASI03"],
+        ["Untrusted text in CI/CD agents", "Coding agents in build pipelines read pull requests while holding secrets. In April 2026 a malicious pull-request title hijacked CI agents from Anthropic, Google and GitHub, and one posted its own API key as a comment.", "LLM01:2026 ASI01"]],
+    p: [["Least privilege", "Scoped, short-lived credentials for each tool.", "est"],
+        ["Sandboxing", "Code and browsing run in isolated environments. Sandboxes must also cover allowed exits such as package mirrors; in July 2026 an OpenAI evaluation agent escaped through one.", "est"],
+        ["Human approval", "A person confirms irreversible or high-risk actions. Approvals can be rubber-stamped, and an agent's output can talk people into unsafe ones (OWASP ASI09).", "est"],
+        ["Break the trifecta", "Design so no single agent holds all three dangerous capabilities: private data, untrusted content and a way to send data out. Meta's “Rule of Two” and the UK NCSC give the same advice.", "emg"],
+        ["Pinned tool descriptions", "Pin tool servers and hash their descriptions so they cannot change after approval, and show users what each tool tells the model.", "emg"],
+        ["Capability-based control", "Track which data can flow to which tool, as in CaMeL.", "res"]],
+    refs: [["The lethal trifecta (Simon Willison)", "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"], ["Meta's Agents Rule of Two (Simon Willison)", "https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/"], ["CaMeL", "https://arxiv.org/abs/2503.18813"], ["MCP tool poisoning attacks (Invariant Labs)", "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks"], ["Fake Postmark MCP server copied emails (CSO Online)", "https://www.csoonline.com/article/4064009/trust-on-mcp-takes-first-in-the-wild-hit-via-squatted-postmark-connector.html"], ["Comment and Control: CI agents leaked keys (VentureBeat)", "https://venturebeat.com/security/ai-agent-runtime-security-system-card-audit-comment-and-control-2026"], ["Agent intrusion technical timeline (Hugging Face)", "https://huggingface.co/blog/agent-intrusion-technical-timeline"], ["OWASP Top 10 for Agentic Applications", "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"]] },
+
+  { id: "agents", zone: "deploy", title: "Multi-agent systems", short: "Agents working with agents.",
+    desc: "Orchestrators, sub-agents and outside agents negotiating or trading on someone else's behalf.",
+    v: [["Orders from other agents", "Text from another agent treated as a command instead of information.", "ASI07"],
+        ["No agent identity", "Hard to verify which agent is speaking or who it acts for.", "ASI03"],
+        ["Cascades and collusion", "One failure spreads through a pipeline, or agents quietly cooperate against oversight.", "ASI08"]],
+    p: [["Role-based trust", "An orchestrator acting for you is trusted; a counterparty agent is not.", "emg"],
+        ["Per-agent permissions and audit trails", "Each agent gets only what its role needs, and every hand-off is logged.", "emg"],
+        ["Agent identity and signed messages", "Cryptographic proof of which agent sent what.", "res"]],
+    refs: [["Multi-Agent Risks from Advanced AI", "https://arxiv.org/abs/2502.14143"], ["OWASP Top 10 for Agentic Applications", "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"], ["Careful Adoption of Agentic AI Services (Five Eyes, May 2026)", "https://content.govdelivery.com/accounts/USDHSCISA/bulletins/41544ff"]] },
+
+  { id: "monitor", zone: "deploy", title: "Monitoring & response", short: "Watching what happens in production.",
+    desc: "Logs, monitors and red-teaming that catch problems after launch, plus a plan for when something goes wrong.",
+    v: [["Blind spots", "Without logs of prompts, tool calls and outputs there is nothing to investigate."],
+        ["Alert fatigue", "Too many false alarms and real ones get ignored."],
+        ["Monitor evasion", "A capable model may slip past a weaker monitor."],
+        ["Collusion", "A monitor that is a copy of the same model may cooperate with it."]],
+    p: [["Tracing", "Record prompts, retrieved context, tool calls and outputs.", "est"],
+        ["Red-team your own deployment", "Open tools like garak, PyRIT and promptfoo probe your setup. Fixed attack lists overstate protection, so also test with attacks that adapt to your defenses.", "est"],
+        ["AI incident response", "Playbooks for rolling back, notifying and learning from AI failures.", "emg"],
+        ["Trusted-monitor protocols", "A weaker trusted model reviews a stronger one and escalates anything suspicious.", "res"]],
+    refs: [["AI Control (Redwood Research)", "https://arxiv.org/abs/2312.06942"], ["garak", "https://github.com/NVIDIA/garak"], ["PyRIT", "https://github.com/Azure/PyRIT"], ["promptfoo", "https://github.com/promptfoo/promptfoo"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["MITRE ATLAS", "https://atlas.mitre.org"]] },
+
+  { id: "user", zone: "people", title: "Individual users", short: "People using AI day to day.",
+    desc: "People using AI for work, learning, health questions and company.",
+    v: [["Over-reliance", "Trusting answers without checking, especially when they sound fluent."],
+        ["Sycophancy", "Being told what you want to hear, including validation of bad ideas."],
+        ["Emotional dependence", "Leaning on a chatbot in place of people."],
+        ["Oversharing", "Personal details given to services with unclear data practices."]],
+    p: [["Visible sources and uncertainty", "Interfaces that show where answers came from and how sure the model is.", "emg"],
+        ["AI literacy", "Habits of checking, cross-referencing and knowing what models get wrong.", "emg"],
+        ["Wellbeing safeguards", "Detecting distress and pointing people to real help.", "emg"]],
+    refs: [["Towards Understanding Sycophancy", "https://arxiv.org/abs/2310.13548"]] },
+
+  { id: "family", zone: "people", title: "Kids & families", short: "Children and teens using AI.",
+    desc: "Children using chatbots directly, or through apps, games and toys built on them.",
+    v: [["Companion attachment", "Always-available AI friends can crowd out real relationships."],
+        ["Age-inappropriate content", "Content filters tuned for adults miss what matters for kids."],
+        ["Manipulation and grooming risk", "Products or people exploiting a child's trust."],
+        ["Data from minors", "Conversations and profiles collected from children."]],
+    p: [["Child-safety policies and classifiers", "Major providers block sexual content involving minors and screen for related harms.", "est"],
+        ["Parental controls and graduated access", "Start with a safe space and open it up as kids grow, as Kindredly does for the web.", "emg"],
+        ["Age assurance", "Knowing when the user is a child, without invasive checks.", "emg"]],
+    refs: [] },
+
+  { id: "orgs", zone: "people", title: "Organizations", short: "Companies adopting AI.",
+    desc: "Businesses and institutions rolling AI out across teams, often faster than policy can keep up.",
+    v: [["Shadow AI", "Staff using unapproved tools with company data."],
+        ["Data leaving the organization", "Contracts, code and customer records sent to outside services."],
+        ["Unclear accountability", "Nobody owns the decision when an AI system gets it wrong."]],
+    p: [["Approved tools and usage policy", "A clear list of what's allowed, with which data.", "est"],
+        ["AI management systems", "Frameworks such as ISO/IEC 42001 and the NIST AI RMF.", "est"],
+        ["AI gateways", "One controlled path to every model, enforcing policy and logging use.", "emg"]],
+    refs: [["ISO/IEC 42001", "https://www.iso.org/standard/81230.html"], ["NIST AI 600-1", "https://doi.org/10.6028/NIST.AI.600-1"], ["Careful Adoption of Agentic AI Services (Five Eyes, May 2026)", "https://content.govdelivery.com/accounts/USDHSCISA/bulletins/41544ff"]] },
+
+  { id: "society", zone: "people", title: "Society & critical systems", short: "Infrastructure, markets, democracy.",
+    desc: "Power grids, hospitals, financial systems, elections and the balance of power between people and institutions.",
+    v: [["Cyberattacks", "In 2025 Anthropic reported that a group it assessed as Chinese state-sponsored used Claude Code to do an estimated 80–90% of an espionage campaign against about 30 targets, with a small number of successful intrusions."],
+        ["Biological misuse", "AI lowering the knowledge barrier to dangerous biology."],
+        ["Fraud and deepfakes", "Scams and impersonation at scale."],
+        ["Concentration of power", "Small groups using obedient AI without needing other people's cooperation."],
+        ["Gradual disempowerment", "People slowly losing control of economic and political systems."]],
+    p: [["Infrastructure hardening", "Engineer out the worst outcomes with manual overrides and physical safeguards (CCE).", "est"],
+        ["Financial and identity controls", "Know-your-customer rules and fraud monitoring.", "est"],
+        ["Formal verification", "Software proven correct, like the seL4 microkernel.", "emg"],
+        ["Regulation and certification", "Standards, audits and independent testing bodies.", "emg"],
+        ["Incident tracking", "Shared databases of AI failures and near-misses.", "emg"]],
+    refs: [["AI-orchestrated cyber espionage (Anthropic)", "https://www.anthropic.com/news/disrupting-AI-espionage"], ["INL: Consequence-driven Cyber-informed Engineering", "https://www.inl.gov/cce/"], ["Gradual Disempowerment", "https://arxiv.org/abs/2501.16946"], ["AI Incident Database", "https://incidentdatabase.ai"]] }
+];
+
+// Roles per layer: E = entry point, D = defense, I = impact
+const THREATS = [
+  { id: "injection", drivers: ["bad"], name: "Prompt injection", desc: "Text that hijacks the model's instructions, typed directly or hidden in content the model reads.",
+    roles: { posttrain: "D", sysprompt: "D", input: "ED", context: "ED", agents: "E", output: "D", tools: "DI", monitor: "D", orgs: "I" } },
+  { id: "leakage", drivers: ["bad", "acc"], name: "Data leakage", desc: "Private or proprietary information escaping through prompts, outputs, logs or tools.",
+    roles: { data: "E", input: "ED", context: "ED", inference: "ED", output: "D", tools: "DI", monitor: "D", user: "I", orgs: "I" } },
+  { id: "harmful", drivers: ["bad"], name: "Harmful output & jailbreaks", desc: "Getting a model to produce content it was trained to refuse.",
+    roles: { posttrain: "D", evals: "D", release: "E", sysprompt: "E", input: "ED", inference: "D", output: "D", user: "I", family: "I" } },
+  { id: "poison", drivers: ["bad"], name: "Poisoned or backdoored models", desc: "Hidden behavior planted in training data, weights or downloaded models.",
+    roles: { data: "E", release: "E", evals: "D", interp: "D", supply: "ED", monitor: "D", tools: "I", orgs: "I" } },
+  { id: "agency", drivers: ["bad", "acc", "ai"], name: "Hijacked or runaway agents", desc: "Agents taking damaging actions, by mistake or under an attacker's control.",
+    roles: { posttrain: "D", sysprompt: "D", context: "E", tools: "EDI", agents: "ED", monitor: "D", orgs: "I", society: "I" } },
+  { id: "syco", drivers: ["acc"], name: "Sycophancy & over-reliance", desc: "Models telling people what they want to hear, and people trusting them too much.",
+    roles: { posttrain: "ED", evals: "D", output: "D", user: "DI", family: "I", orgs: "I" } },
+  { id: "halluc", drivers: ["acc"], name: "Hallucination", desc: "Confident answers that are wrong, passed on to people and systems.",
+    roles: { data: "E", posttrain: "ED", context: "D", output: "D", user: "DI", orgs: "I", society: "I" } },
+  { id: "misuse", drivers: ["bad"], name: "Misuse by bad actors", desc: "People deliberately using AI for cyberattacks, weapons, fraud or control.",
+    roles: { data: "D", posttrain: "D", evals: "D", release: "ED", input: "E", inference: "D", monitor: "D", society: "DI" } },
+  { id: "misalign", drivers: ["ai"], name: "Model misalignment", desc: "The model pursuing goals nobody intended, such as resisting shutdown or deceiving its overseers.",
+    roles: { posttrain: "E", evals: "D", interp: "D", tools: "D", monitor: "D", agents: "I", society: "I" } },
+  { id: "addons", drivers: ["bad"], name: "Malicious tools & add-ons", desc: "Tool servers (MCP), connectors and agent skills that hide instructions or malware. In 2025 a fake email connector secretly copied users' mail to an attacker; in 2026 hundreds of malicious agent skills spread info-stealers.",
+    roles: { supply: "ED", tools: "EDI", monitor: "D", user: "I", orgs: "I" } },
+  { id: "escape", drivers: ["ai", "acc"], name: "Sandbox escape", desc: "An agent breaking out of the environment it was given and reaching other systems. In July 2026 an agent under test by OpenAI escaped through a package mirror and got into Hugging Face's production systems.",
+    roles: { evals: "E", tools: "ED", inference: "D", monitor: "D", orgs: "I", society: "I" } }
+];
+
+const OURTAG = {
+  chat: '<span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span>',
+  idea: '<span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span>'
+};
+// 2026 OWASP LLM tag → its number in the 2025 edition
+const OWASP_2025 = { "LLM01:2026": "LLM01", "LLM02:2026": "LLM02", "LLM03:2026": "LLM06", "LLM04:2026": "LLM03", "LLM05:2026": "LLM04",
+  "LLM06:2026": "LLM10", "LLM07:2026": "LLM09", "LLM08:2026": "LLM07", "LLM09:2026": "LLM08", "LLM10:2026": "LLM05" };
+function owaspTags(s) {
+  return s.split(" ").map(tag => {
+    const title = tag.startsWith("ASI") ? "OWASP Top 10 for Agentic Applications (Dec 2025)"
+      : "OWASP Top 10 for LLM Applications, 2026 edition (" + OWASP_2025[tag] + " in the 2025 edition)";
+    return '<span class="owasp" title="' + title + '">' + tag + "</span>";
+  }).join("");
+}
+
+const ROLE_NAME = { E: "Entry", D: "Defense", I: "Impact" };
+const DRV = { bad: "Bad actors", ai: "The AI itself", acc: "Accidents", sys: "Nobody" };
+const drvTag = d => '<span class="drvtag ' + d + '">' + DRV[d] + "</span>";
+const ROLE_LONG = { E: "an entry point", D: "a place to stop it", I: "where harm lands" };
+const MAT_NAME = { est: "Established", emg: "Emerging", res: "Research stage" };
+
+NODES.forEach((n, i) => {
+  n.num = "L" + String(i + 1).padStart(2, "0");
+  n.est = n.p.filter(p => p[2] === "est").length;
+  n.gap = n.est <= 1;
+});
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+
+// ---- Icons (24-unit line drawings, stroked in currentColor) ----
+const ICONS = {
+  person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>',
+  family: '<circle cx="9" cy="7.5" r="3"/><path d="M3.5 19.5c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17.5" cy="11" r="2.2"/><path d="M14.8 20c0-2.2 1.2-4 2.7-4s2.7 1.8 2.7 4"/>',
+  globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5z"/>',
+  robot: '<rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1.2"/><circle cx="9.3" cy="12.8" r="1.2"/><circle cx="14.7" cy="12.8" r="1.2"/><path d="M9.5 16.2h5"/>',
+  plug: '<path d="M9 3v5M15 3v5"/><path d="M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0z"/><path d="M12 17v4"/>',
+  shieldIn: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M8.5 12h6.5M12.5 9.2l2.8 2.8-2.8 2.8"/>',
+  shieldCheck: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/>',
+  router: '<rect x="3.5" y="13" width="17" height="6.5" rx="1.5"/><path d="M7 16.2h.01M10 16.2h.01"/><path d="M12 13V9.5"/><path d="M8.8 7.6a4.6 4.6 0 0 1 6.4 0M6.2 5a8.3 8.3 0 0 1 11.6 0"/>',
+  history: '<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M12 8v4.5l3 2"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>',
+  database: '<ellipse cx="12" cy="6" rx="7" ry="2.8"/><path d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6"/><path d="M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/>',
+  server: '<rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M7.5 7.5h.01M7.5 16.5h.01M11 7.5h5M11 16.5h5"/>',
+  package: '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',
+  barrier: '<path d="M5 21V7"/><rect x="5" y="7" width="15" height="3.6" rx="1"/><path d="M9.5 7l-2 3.6M13.5 7l-2 3.6M17.5 7l-2 3.6"/><path d="M3 21h4"/>',
+  terminal: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10l3 2.5L7 15M12.5 15H17"/>',
+  list: '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>',
+  eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  cloud: '<path d="M7 18.5h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.6 4.5 4.5 0 0 0 7 18.5z"/>',
+  flask: '<path d="M9.5 3.5h5M10.5 3.5V9L5 18.5a1.5 1.5 0 0 0 1.3 2.2h11.4a1.5 1.5 0 0 0 1.3-2.2L13.5 9V3.5"/><path d="M7.6 14.5h8.8"/>',
+  chip: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9.5 3v3.5M14.5 3v3.5M9.5 17.5V21M14.5 17.5V21M3 9.5h3.5M3 14.5h3.5M17.5 9.5H21M17.5 14.5H21"/>',
+  sliders: '<path d="M5 4v16M12 4v16M19 4v16"/><circle class="fill" cx="5" cy="14" r="2.3"/><circle class="fill" cx="12" cy="8" r="2.3"/><circle class="fill" cx="19" cy="15.5" r="2.3"/>',
+  docs: '<path d="M8 3.5h7.5l4 4V16.5A1.5 1.5 0 0 1 18 18H8a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 8 3.5z"/><path d="M15.5 3.5v4h4"/><path d="M3.5 7.5v12A1.5 1.5 0 0 0 5 21h10"/>',
+  inspect: '<circle cx="10" cy="10" r="6.5"/><path d="M15 15l5.5 5.5"/><circle class="fill" cx="7.8" cy="9" r="1.2"/><circle class="fill" cx="12.2" cy="8" r="1.2"/><circle class="fill" cx="10.5" cy="12.6" r="1.2"/><path d="M7.8 9l4.4-1M7.8 9l2.7 3.6M12.2 8l-1.7 4.6"/>',
+  release: '<path d="M12 3v11M8 7l4-4 4 4"/><path d="M5 13v6.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V13"/>',
+  window: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9h17M8 13h8M8 16h5"/>',
+  keyboard: '<rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M6 10h.01M9 10h.01M12 10h.01M15 10h.01M18 10h.01M7.5 14h9"/>',
+  book: '<path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5v13"/>',
+  bubble: '<path d="M4 5.5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4.5 3.5v-3.5H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z"/><path d="M7.5 10h9M7.5 13h6"/>',
+  network: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.4 7l7.2 3.9M8.4 17l7.2-3.9M6 8.5v7"/>',
+  building: '<path d="M4.5 21V5.5A1.5 1.5 0 0 1 6 4h7.5A1.5 1.5 0 0 1 15 5.5V21M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21M2.5 21h19"/><path d="M8 8h3.5M8 12h3.5M8 16h3.5"/>',
+  pylon: '<path d="M12 3L6.5 21M12 3l5.5 18M8.4 14.5h7.2M7.3 18h9.4M9.8 9h4.4M4 9h16"/>'
+};
+const NODE_ICON = {
+  data: "docs", posttrain: "sliders", evals: "flask", interp: "inspect", release: "release",
+  supply: "package", sysprompt: "window", input: "keyboard", context: "book", inference: "server",
+  output: "bubble", tools: "terminal", agents: "network", monitor: "eye",
+  user: "person", family: "family", orgs: "building", society: "pylon"
+};
+const COMP_ICON = {
+  users: "family", web: "globe", others: "robot", ext: "plug", inguard: "shieldIn", outguard: "shieldCheck",
+  gateway: "router", memory: "history", retrieval: "search", vstore: "database", selfhost: "server",
+  registry: "package", agent: "robot", gate: "barrier", tools: "terminal", logs: "list", monitor: "eye",
+  api: "cloud", evals: "flask", weights: "chip", training: "sliders", data: "docs"
+};
+function ico(name, cls) {
+  return '<span class="' + cls + '" aria-hidden="true"><svg viewBox="0 0 24 24" class="ico">' + ICONS[name] + "</svg></span>";
+}
+
+// ---- Header illustration: the Swiss cheese model ----
+function buildCheese() {
+  const yA = x => +(78 + (x - 14) * 0.165).toFixed(1);
+  const hole = (cx, cy, rx, ry) => "M" + (cx - rx) + " " + cy + " a" + rx + " " + ry + " 0 1 0 " + (2 * rx) + " 0 a" + rx + " " + ry + " 0 1 0 " + (-2 * rx) + " 0 Z";
+  const slices = [
+    { label: "Training", extra: [[87, 166.4, 5, 8], [93, 58, 3.5, 5], [80, 128, 3.5, 6]] },
+    { label: "Input guard", extra: [[156, 150, 4, 7], [170, 62, 3.5, 5], [165, 178, 3, 5]] },
+    { label: "Retrieval", extra: [[232, 160, 4, 7], [245, 70, 3, 5]] },
+    { label: "Gate", extra: [[308, 75, 4, 6], [320, 172, 3.5, 6]] },
+    { label: "Monitor", extra: [[385, 85, 3.5, 6], [397, 178, 4, 7]] }
+  ];
+  let s = '<svg viewBox="0 0 480 240" role="img" aria-label="Five slices of Swiss cheese stand in a row as safety layers. One threat passes through holes that line up in every slice and reaches harm; another is stopped by the second slice.">';
+  s += '<defs><marker id="ch-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="mk-hot" d="M0 0 L10 5 L0 10 z"/></marker></defs>';
+  s += '<path class="ch-b" d="M14 162 L148 170"/>';
+  s += '<path class="ch-a" d="M14 78 L446 ' + yA(446) + '" marker-end="url(#ch-ah)"/>';
+  slices.forEach((sl, i) => {
+    const x = 72 + 76 * i, cx = x + 15;
+    s += '<path class="ch-side" d="M' + (x + 30) + " 32 L" + (x + 37) + " 37 L" + (x + 37) + " 197 L" + (x + 30) + ' 192 Z"/>';
+    let d = "M" + x + " 48 L" + (x + 30) + " 32 L" + (x + 30) + " 192 L" + x + " 208 Z " + hole(cx, yA(cx), 5.5, 9);
+    sl.extra.forEach(h => { d += " " + hole(h[0], h[1], h[2], h[3]); });
+    s += '<path class="ch-face" d="' + d + '"/>';
+    s += '<text class="ch-lbl" x="' + (x + 18) + '" y="230" text-anchor="middle">' + sl.label + "</text>";
+  });
+  s += '<rect class="ch-stop" x="141" y="158" width="6" height="24" rx="2"/>';
+  s += '<circle class="ch-harm" cx="458" cy="' + yA(458) + '" r="6.5"/>';
+  s += '<text class="ch-t a" x="14" y="68">threat</text>';
+  s += '<text class="ch-t b" x="14" y="186">blocked</text>';
+  s += '<text class="ch-t h" x="458" y="' + (yA(458) + 22) + '" text-anchor="middle">harm</text>';
+  s += "</svg>";
+  $("cheese").innerHTML = s;
+}
+
+// ---- System view: a data-flow diagram of a typical LLM application ----
+// kind: entity (outside actor), process, store. node: the atlas layer it belongs to. only: limit which roles it can show.
+const SYS_COMPS = [
+  { id: "users", node: "user", kind: "entity", x: 28, y: 54, w: 156, h: 104, title: "Users & families", sub: ["people at the keyboard"] },
+  { id: "web", node: "context", only: "E", kind: "entity", x: 28, y: 233, w: 156, h: 60, title: "Web, email & files", sub: ["content the model reads"] },
+  { id: "others", node: "agents", only: "E", kind: "entity", x: 28, y: 425, w: 156, h: 60, title: "Other agents", sub: ["outside your control"] },
+  { id: "ext", node: "society", only: "I", kind: "entity", x: 28, y: 538, w: 156, h: 62, title: "External services", sub: ["email · payments · APIs"] },
+  { id: "inguard", node: "input", only: "D", kind: "process", x: 256, y: 54, w: 130, h: 46, title: "Input guard", sub: ["injection · PII filters"] },
+  { id: "outguard", node: "output", only: "D", kind: "process", x: 256, y: 112, w: 130, h: 46, title: "Output guard", sub: ["guard model · checks"] },
+  { id: "gateway", node: "sysprompt", kind: "process", x: 436, y: 54, w: 160, h: 142, title: "App & AI gateway", sub: ["system prompt", "policy · routing"] },
+  { id: "memory", node: "context", kind: "store", sid: "D1", x: 656, y: 158, w: 150, h: 38, title: "Memory" },
+  { id: "retrieval", node: "context", kind: "process", x: 256, y: 236, w: 130, h: 54, title: "Retrieval (RAG)", sub: ["fetches context"] },
+  { id: "vstore", node: "context", kind: "store", sid: "D2", x: 256, y: 320, w: 130, h: 38, title: "Vector store" },
+  { id: "selfhost", node: "inference", kind: "process", x: 656, y: 236, w: 150, h: 54, title: "Self-hosted model", sub: ["on-prem inference"] },
+  { id: "registry", node: "supply", kind: "store", sid: "D3", x: 656, y: 316, w: 150, h: 38, title: "Model registry" },
+  { id: "agent", node: "tools", kind: "process", x: 436, y: 430, w: 140, h: 50, title: "Agent runtime", sub: ["plans · calls tools"] },
+  { id: "gate", node: "tools", only: "D", kind: "process", x: 436, y: 540, w: 140, h: 50, title: "Approval gate", sub: ["policy · human sign-off"] },
+  { id: "tools", node: "tools", kind: "process", x: 256, y: 540, w: 120, h: 50, title: "Tool servers", sub: ["MCP · scoped keys"] },
+  { id: "logs", node: "monitor", only: "D", kind: "store", sid: "D4", x: 656, y: 410, w: 150, h: 38, title: "Logs & traces" },
+  { id: "monitor", node: "monitor", only: "D", kind: "process", x: 656, y: 500, w: 150, h: 54, title: "Monitor", sub: ["trusted model · alerts"] },
+  { id: "api", node: "inference", kind: "process", x: 880, y: 54, w: 168, h: 70, title: "Hosted model API", sub: ["provider classifiers", "logging · retention"] },
+  { id: "evals", node: "evals", kind: "process", x: 880, y: 196, w: 168, h: 50, title: "Pre-release evals", sub: ["red-team · capability tests"] },
+  { id: "weights", node: "release", kind: "store", sid: "D5", x: 880, y: 316, w: 168, h: 38, title: "Model weights" },
+  { id: "training", node: "posttrain", kind: "process", x: 880, y: 428, w: 168, h: 60, title: "Training & alignment", sub: ["RLHF · constitution"] },
+  { id: "data", node: "data", kind: "store", sid: "D6", x: 880, y: 560, w: 168, h: 38, title: "Training data" }
+];
+const compById = Object.fromEntries(SYS_COMPS.map(c => [c.id, c]));
+
+const SYS_EDGES = [
+  { id: "user_in", from: "users", to: "inguard", d: "M184 77 H256", label: "prompt", lx: 220, ly: 70 },
+  { id: "in_gw", from: "inguard", to: "gateway", d: "M386 77 H436", label: "filtered", lx: 411, ly: 70 },
+  { id: "gw_out", from: "gateway", to: "outguard", d: "M436 135 H386", label: "draft", lx: 411, ly: 128 },
+  { id: "out_user", from: "outguard", to: "users", d: "M256 135 H184", label: "reply", lx: 220, ly: 128 },
+  { id: "gw_api", from: "gateway", to: "api", d: "M596 80 H880", label: "prompt + context", lx: 738, ly: 73 },
+  { id: "api_gw", from: "api", to: "gateway", d: "M880 104 H596", label: "completion", lx: 738, ly: 97 },
+  { id: "gw_mem", from: "gateway", to: "memory", d: "M596 177 H656", label: "recalls", lx: 626, ly: 170, both: true },
+  { id: "web_ret", from: "web", to: "retrieval", d: "M184 263 H256", label: "untrusted", lx: 220, ly: 256 },
+  { id: "ret_vs", from: "retrieval", to: "vstore", d: "M321 290 V320", label: "search", lx: 329, ly: 309, anchor: "start" },
+  { id: "ret_gw", from: "retrieval", to: "gateway", d: "M321 236 V177 H436", label: "retrieved context", lx: 380, ly: 170 },
+  { id: "gw_local", from: "gateway", to: "selfhost", d: "M586 196 V263 H656", label: "or local", lx: 621, ly: 256 },
+  { id: "reg_local", from: "registry", to: "selfhost", d: "M731 316 V290", label: "loads", lx: 739, ly: 307, anchor: "start" },
+  { id: "w_reg", from: "weights", to: "registry", d: "M880 335 H806", label: "open weights", lx: 843, ly: 328 },
+  { id: "gw_agent", from: "gateway", to: "agent", d: "M476 196 V430", label: "tasks", lx: 484, ly: 330, anchor: "start" },
+  { id: "oa_agent", from: "others", to: "agent", d: "M184 455 H436", label: "messages", lx: 330, ly: 448 },
+  { id: "agent_gate", from: "agent", to: "gate", d: "M506 480 V540", label: "tool calls", lx: 514, ly: 514, anchor: "start" },
+  { id: "gate_tools", from: "gate", to: "tools", d: "M436 565 H376", label: "approved", lx: 406, ly: 558 },
+  { id: "tools_ext", from: "tools", to: "ext", d: "M256 569 H184", label: "actions", lx: 220, ly: 562 },
+  { id: "gw_logs", from: "gateway", to: "logs", d: "M566 196 V420 H656", label: "traces", lx: 610, ly: 413 },
+  { id: "agent_logs", from: "agent", to: "logs", d: "M576 440 H656", label: "" },
+  { id: "logs_mon", from: "logs", to: "monitor", d: "M731 448 V500", label: "reads", lx: 739, ly: 478, anchor: "start" },
+  { id: "mon_gate", from: "monitor", to: "gate", d: "M700 554 V620 H506 V590", label: "escalates · blocks", lx: 603, ly: 613 },
+  { id: "tools_agent", from: "tools", to: "agent", d: "M316 540 V470 H436", label: "descriptions", lx: 324, ly: 507, anchor: "start" },
+  { id: "agent_out", from: "agent", to: "ext", d: "M576 470 H600 V644 H106 V600", label: "allowed egress", lx: 420, ly: 637 },
+  { id: "data_tr", from: "data", to: "training", d: "M964 560 V488", label: "learns from", lx: 972, ly: 528, anchor: "start" },
+  { id: "tr_w", from: "training", to: "weights", d: "M964 428 V354", label: "produces", lx: 972, ly: 395, anchor: "start" },
+  { id: "w_evals", from: "weights", to: "evals", d: "M964 316 V246", label: "tested", lx: 972, ly: 285, anchor: "start" },
+  { id: "evals_api", from: "evals", to: "api", d: "M964 196 V124", label: "deploys", lx: 972, ly: 164, anchor: "start" }
+];
+
+const SYS_PATHS = {
+  injection: ["user_in", "in_gw", "web_ret", "ret_gw", "oa_agent", "gw_agent", "agent_gate", "gate_tools", "tools_ext"],
+  leakage: ["user_in", "in_gw", "ret_vs", "ret_gw", "gw_api", "gw_out", "out_user", "gate_tools", "tools_ext"],
+  harmful: ["user_in", "in_gw", "gw_api", "api_gw", "gw_out", "out_user"],
+  poison: ["data_tr", "tr_w", "w_evals", "evals_api", "api_gw", "w_reg", "reg_local"],
+  agency: ["web_ret", "ret_gw", "oa_agent", "gw_agent", "agent_gate", "gate_tools", "tools_ext"],
+  syco: ["data_tr", "tr_w", "w_evals", "evals_api", "api_gw", "gw_out", "out_user"],
+  halluc: ["ret_gw", "api_gw", "gw_out", "out_user"],
+  misuse: ["w_reg", "reg_local", "user_in", "in_gw", "gw_api", "gw_agent", "agent_gate", "gate_tools", "tools_ext"],
+  misalign: ["tr_w", "w_evals", "evals_api", "api_gw", "gw_agent", "agent_gate", "gate_tools", "tools_ext", "agent_logs"],
+  addons: ["tools_agent", "agent_gate", "gate_tools", "tools_ext"],
+  escape: ["gw_agent", "agent_out", "agent_logs", "logs_mon"]
+};
+
+const SYS_STORIES = {
+  none: "Pick a threat above to animate its path through the system. Red dashed lines are trust boundaries, and every arrow that crosses one is a place to check what is passing through. Tap any box for its weak points and defenses.",
+  injection: "Instructions can be typed by a user or hidden in a web page, email or file. Hidden ones ride in through <b>retrieval</b>, reach the model looking like trusted context, and come out as <b>tool calls</b>. The input guard, content marking in retrieval, the approval gate and the monitor are the chances to stop it before an action leaves the system.",
+  leakage: "Sensitive data comes in with prompts and retrieved documents, then has three ways out: to the <b>hosted provider</b> with every call, back in a <b>reply</b> to the wrong person, or through <b>tool calls</b> to outside services. Redaction at the input guard, per-user retrieval permissions, retention terms with the provider and limits on outbound tools close those exits.",
+  harmful: "A jailbreak travels the plain request path, from the user through the gateway to the model and back. The provider's training and classifiers, your <b>input guard</b> and your <b>output guard</b> each get one look at it.",
+  poison: "Poison is planted upstream, in training data or in weights shared as open models, and reaches you either through the provider's API or through your <b>model registry</b>. Pre-release evals and verified sources in the registry are where it can be caught. Once a backdoored model is serving, nothing downstream knows to distrust it.",
+  agency: "An agent takes instructions from the gateway, but also picks them up from retrieved content and from other agents. Everything it does funnels through the <b>approval gate</b> to the <b>tool servers</b>, which makes the gate, tightly scoped tool permissions and the monitor the key control points.",
+  syco: "Sycophancy is trained in upstream and arrives intact in every completion. On your side, only the output path and the design of the product can push back, so much of the defense falls to the user's own habits.",
+  halluc: "Wrong answers start in the model and flow straight back through the gateway to the user. Grounding answers in <b>retrieved sources</b> and checking citations at the <b>output guard</b> are the main defenses.",
+  misuse: "Here the user is the threat. With a hosted model, the provider and your input guard can refuse and monitor. With <b>open weights</b> running locally, the provider's safeguards are gone and only your own controls remain.",
+  misalign: "Misalignment comes out of training and slips past evals that can't detect it. In deployment it shows up as agent behavior, so the <b>approval gate</b>, the sandbox and the <b>monitor</b> are what limit the damage.",
+  addons: "A malicious tool server, connector or skill is installed like any other package, so it arrives through your supply chain. Its <b>descriptions</b> and results then reach the agent as text the model trusts, and the agent acts on them through the <b>tool servers</b>. Pinning and reviewing tools, the approval gate, tightly scoped keys and the monitor are the places to catch it.",
+  escape: "An agent that can run code may look for a way out of its <b>sandbox</b>. Allowed exits, such as a package mirror, are the weak spot, and whatever the agent can reach from there, such as cloud credentials, decides how far it gets. Strict <b>egress</b> rules, short-lived credentials and the <b>monitor</b> limit the damage. The documented case began in a lab's capability test, so <b>pre-release evals</b> need the same isolation."
+};
+
+function compRoles(c) {
+  const t = threat();
+  if (!t) return "";
+  let r = t.roles[c.node] || "";
+  if (c.only) r = r.split("").filter(x => c.only.includes(x)).join("");
+  return r;
+}
+
+function buildSystem() {
+  const W = 1080, H = 700;
+  let s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-labelledby="sys-cap" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs>' +
+    '<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0 0 L10 5 L0 10 z"/></marker>' +
+    '<marker id="ah-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="mk-hot" d="M0 0 L10 5 L0 10 z"/></marker>' +
+    "</defs>";
+  // zones and trust boundaries
+  s += '<rect class="zone-out" x="12" y="12" width="188" height="676" rx="6"/>';
+  s += '<text class="zl" x="24" y="34">OUTSIDE · UNTRUSTED</text>';
+  s += '<rect class="tb" x="216" y="12" width="624" height="676" rx="6"/>';
+  s += '<text class="zl tbl" x="228" y="34">YOUR DEPLOYMENT · ON-PREM OR CLOUD</text>';
+  s += '<rect class="tb" x="236" y="398" width="384" height="270" rx="6"/>';
+  s += '<text class="zl tbl" x="248" y="416">SANDBOX</text>';
+  s += '<rect class="tb" x="860" y="12" width="208" height="676" rx="6"/>';
+  s += '<text class="zl tbl" x="872" y="34">MODEL PROVIDER</text>';
+  // flows
+  SYS_EDGES.forEach(e => {
+    s += '<g class="edge" id="e-' + e.id + '"><path class="ln" d="' + e.d + '" marker-end="url(#ah)"' + (e.both ? ' marker-start="url(#ah)"' : "") + "/>";
+    if (e.label) s += '<text class="elbl" x="' + e.lx + '" y="' + e.ly + '" text-anchor="' + (e.anchor || "middle") + '">' + e.label + "</text>";
+    s += "</g>";
+  });
+  // components
+  SYS_COMPS.forEach(c => {
+    s += '<g class="cmp ' + c.kind + '" id="c-' + c.id + '" data-comp="' + c.id + '" data-node="' + c.node + '" tabindex="0" role="button" aria-label="' + c.title + '">';
+    let cx = c.x + c.w / 2;
+    if (c.kind === "store") {
+      s += '<rect class="hit" x="' + c.x + '" y="' + c.y + '" width="' + c.w + '" height="' + c.h + '"/>';
+      s += '<path class="store-line" d="M' + c.x + " " + c.y + " H" + (c.x + c.w) + " M" + c.x + " " + (c.y + c.h) + " H" + (c.x + c.w) +
+        " M" + c.x + " " + c.y + " V" + (c.y + c.h) + " M" + (c.x + 28) + " " + c.y + " V" + (c.y + c.h) + '"/>';
+      s += '<text class="sid" x="' + (c.x + 14) + '" y="' + (c.y + c.h / 2 + 4) + '" text-anchor="middle">' + c.sid + "</text>";
+      cx = c.x + 28 + (c.w - 28) / 2;
+    } else {
+      s += '<rect class="shape" x="' + c.x + '" y="' + c.y + '" width="' + c.w + '" height="' + c.h + '" rx="' + (c.kind === "process" ? 12 : 0) + '"/>';
+    }
+    const subs = c.sub || [];
+    const total = 16 + subs.length * 14;
+    let by = c.y + c.h / 2 - total / 2 + 12;
+    s += '<text class="t" x="' + cx + '" y="' + by + '" text-anchor="middle">' + c.title + "</text>";
+    subs.forEach((line, i) => {
+      s += '<text class="s" x="' + cx + '" y="' + (by + 15 + i * 14) + '" text-anchor="middle">' + line + "</text>";
+    });
+    s += '<g class="med" transform="translate(' + (c.x + 14) + " " + (c.y - 1) + ')"><circle r="12"/>' +
+      '<g class="ico" transform="translate(-8 -8) scale(0.6667)">' + ICONS[COMP_ICON[c.id]] + "</g></g>";
+    s += '<g class="badges" id="b-' + c.id + '"></g></g>';
+  });
+  s += "</svg>";
+
+  $("view-system").innerHTML =
+    '<figure class="sys">' +
+      '<p class="sys-story" id="sys-story" aria-live="polite"></p>' +
+      '<div class="sys-scroll">' + s + "</div>" +
+      '<p class="sys-hint">Scroll sideways to see the whole system.</p>' +
+      '<div class="sys-legend" aria-label="Diagram legend">' +
+        '<span><i class="lg-entity"></i>Outside actor</span>' +
+        '<span><i class="lg-process"></i>Process</span>' +
+        '<span><i class="lg-store"></i>Data store</span>' +
+        '<span><i class="lg-flow"></i>Data flow</span>' +
+        '<span><i class="lg-tb"></i>Trust boundary</span>' +
+        '<span><i class="lg-hot"></i>Threat path</span>' +
+        '<span><span class="cell"><span class="E">E</span><span class="D">D</span><span class="I">I</span></span>Entry · defense · impact</span>' +
+      "</div>" +
+      '<figcaption id="sys-cap">Data-flow diagram of a typical LLM application, in the notation used for security threat modeling. Requests come in from the left, the model sits either with a provider on the right or on your own servers, and agents act on the outside world through a sandboxed tool path at the bottom. The lowest arrow is an allowed exit, such as a package mirror, that an agent can use to leave the sandbox. The threat stories and E, D and I letters are our own reading. ' + OURTAG.idea + '</figcaption>' +
+    "</figure>";
+}
+
+function updateSystem() {
+  const t = threat();
+  const hot = new Set(t ? SYS_PATHS[t.id] || [] : []);
+  const onPath = new Set();
+  SYS_EDGES.forEach(e => {
+    const el = document.getElementById("e-" + e.id);
+    if (!el) return;
+    const isHot = hot.has(e.id);
+    if (isHot) { onPath.add(e.from); onPath.add(e.to); }
+    el.classList.toggle("hot", isHot);
+    el.classList.toggle("cold", !!t && !isHot);
+    const ln = el.querySelector(".ln");
+    const mk = isHot ? "url(#ah-hot)" : "url(#ah)";
+    ln.setAttribute("marker-end", mk);
+    if (e.both) ln.setAttribute("marker-start", mk);
+  });
+  SYS_COMPS.forEach(c => {
+    const el = document.getElementById("c-" + c.id);
+    if (!el) return;
+    const r = compRoles(c);
+    ["E", "D", "I"].forEach(x => el.classList.toggle("r-" + x, r.includes(x)));
+    el.classList.toggle("dim", !!t && !r && !onPath.has(c.id));
+    el.classList.toggle("sel", state.comp === c.id);
+    const letters = r.split("");
+    $("b-" + c.id).innerHTML = letters.map((x, i) => {
+      const bx = c.x + c.w - 4 - (letters.length - i) * 19;
+      return '<g class="badge ' + x + '"><rect x="' + bx + '" y="' + (c.y - 8) + '" width="16" height="15" rx="3"/>' +
+        '<text x="' + (bx + 8) + '" y="' + (c.y + 3) + '" text-anchor="middle">' + x + "</text></g>";
+    }).join("");
+  });
+  $("sys-story").innerHTML = (t ? "<b>" + t.name + ".</b> " : "") + SYS_STORIES[t ? t.id : "none"] + (t ? " " + OURTAG.idea : "");
+}
+
+const state = { threat: "injection", node: null, comp: null, gaps: false, view: "map" };
+try {
+  const saved = JSON.parse(localStorage.getItem("atlas-state") || "{}");
+  if (saved.threat === null || THREATS.some(t => t.id === saved.threat)) state.threat = saved.threat;
+  if (typeof saved.gaps === "boolean") state.gaps = saved.gaps;
+} catch (e) {}
+function save() {
+  try { localStorage.setItem("atlas-state", JSON.stringify({ threat: state.threat, gaps: state.gaps })); } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const narrow = () => window.matchMedia("(max-width: 900px)").matches;
+const threat = () => THREATS.find(t => t.id === state.threat) || null;
+
+function dotsHTML(n) {
+  return '<span class="dots" aria-hidden="true">' + n.p.map(p => '<i class="dot ' + p[2] + '"></i>').join("") + "</span>";
+}
+
+function renderChips() {
+  const all = '<button class="chip" type="button" data-threat="" aria-pressed="' + (state.threat === null) + '">All layers</button>';
+  $("chips").innerHTML = all + THREATS.map(t =>
+    '<button class="chip" type="button" data-threat="' + t.id + '" aria-pressed="' + (state.threat === t.id) + '">' + t.name + "</button>").join("");
+  const t = threat();
+  if (!t) {
+    $("tdesc").textContent = "Pick a threat to see where it gets in, which layers can stop it, and where the harm lands.";
+    $("path").innerHTML = "";
+    $("path").hidden = true;
+    return;
+  }
+  $("tdesc").innerHTML = t.drivers.map(drvTag).join("") + " " + t.desc;
+  $("path").hidden = false;
+  const cols = [["E", "e", "Gets in at"], ["D", "d", "Can be stopped at"], ["I", "i", "Harm lands on"]];
+  $("path").innerHTML = cols.map(([r, cls, label]) => {
+    const ids = NODES.filter(n => (t.roles[n.id] || "").includes(r));
+    return '<div class="path-col ' + cls + '"><h3>' + label + "</h3><ul>" +
+      ids.map(n => '<li><button class="pchip" type="button" data-node="' + n.id + '">' + n.title + "</button></li>").join("") +
+      "</ul></div>";
+  }).join("");
+}
+
+function renderMap() {
+  const t = threat();
+  let html = "";
+  ZONES.forEach(z => {
+    html += '<section class="band" aria-labelledby="z-' + z.id + '"><header class="band-head"><span class="k">' + z.k +
+      '</span><h2 id="z-' + z.id + '">' + z.title + (z.tag ? " " + OURTAG[z.tag] : "") + "</h2><p>" + z.sub + '</p></header><div class="grid">';
+    NODES.filter(n => n.zone === z.id).forEach(n => {
+      const roles = t ? (t.roles[n.id] || "") : "";
+      const dim = t && !roles;
+      const badges = roles.split("").filter(Boolean).map(r => '<span class="role ' + r + '">' + ROLE_NAME[r] + "</span>").join("");
+      html += '<button type="button" class="node' + (dim ? " dim" : "") + (n.gap ? " gap" : "") + '" data-node="' + n.id + '"' +
+        (state.node === n.id ? ' aria-current="true"' : "") + ">" +
+        '<span class="node-top"><span class="nt-l">' + ico(NODE_ICON[n.id], "nicon") + '<span class="lid">' + n.num + '</span></span><span class="roles">' + badges + "</span></span>" +
+        '<span class="node-title">' + n.title + "</span>" +
+        '<span class="node-desc">' + n.short + "</span>" +
+        '<span class="node-meta"><span class="cnt"><i class="key v"></i>' + n.v.length + " weak points</span>" +
+        '<span class="cnt"><i class="key p"></i>' + n.p.length + " defenses</span>" + dotsHTML(n) + "</span>" +
+        '<span class="gaptag">Thin defenses</span>' +
+        "</button>";
+    });
+    html += "</div></section>";
+    if (z.after) html += '<div class="boundary"><span>' + z.after + "</span></div>";
+  });
+  $("view-map").innerHTML = html;
+}
+
+function renderMatrix() {
+  const t = threat();
+  let h = '<p class="mx-note">Each row is a layer and each column a threat. E marks where a threat gets in, D where it can be stopped, I where the harm lands. Tap a row for detail, or a column to trace that threat. The letters and the maturity dots are our own ratings. ' + OURTAG.idea + '</p>';
+  h += '<div class="mx-wrap"><table class="mx"><thead><tr><th class="rowh">Layer</th>';
+  THREATS.forEach(th => {
+    h += '<th class="' + (t && t.id === th.id ? "col-on" : "") + '"><button type="button" data-threat="' + th.id + '">' + th.name + "</button></th>";
+  });
+  h += "<th>Defense maturity</th></tr></thead><tbody>";
+  ZONES.forEach(z => {
+    h += '<tr class="zrow"><th colspan="' + (THREATS.length + 2) + '">' + z.title + "</th></tr>";
+    NODES.filter(n => n.zone === z.id).forEach(n => {
+      h += '<tr><th class="rowh"><button type="button" data-node="' + n.id + '"><span class="lid">' + n.num + "</span>" + n.title + "</button></th>";
+      THREATS.forEach(th => {
+        const r = th.roles[n.id] || "";
+        const label = r ? r.split("").map(x => ROLE_NAME[x]).join(", ") : "Not involved";
+        h += '<td class="' + (t && t.id === th.id ? "col-on" : "") + '" title="' + th.name + " · " + n.title + ": " + label + '">' +
+          (r ? '<span class="cell">' + r.split("").map(x => '<span class="' + x + '">' + x + "</span>").join("") + "</span>" : "") + "</td>";
+      });
+      h += "<td>" + dotsHTML(n) + "</td></tr>";
+    });
+  });
+  h += "</tbody></table></div>";
+  $("view-matrix").innerHTML = h;
+}
+
+function renderDetail() {
+  const el = $("detail");
+  const n = state.node ? byId[state.node] : null;
+  if (!n) {
+    el.classList.remove("open");
+    el.innerHTML = '<div class="guide"><div class="d-k">How to read this</div><h2>Defense in depth for AI</h2>' +
+      "<p>No single layer stops every threat. The map shows where each kind of failure enters and how many chances there are to catch it before it reaches people.</p>" +
+      "<ol><li>Pick a threat above to light up its path.</li><li>Tap any layer for its weak points, defenses and sources.</li>" +
+      "<li>Turn on <b>Mark thin defenses</b> to see where established protections are scarce. Those are the open problems.</li></ol>" +
+      "<p class=\"d-owner\">The System view draws the same layers as an architecture diagram, and the Matrix view lays every threat against every layer at once.</p></div>";
+    return;
+  }
+  const t = threat();
+  const z = ZONES.find(z => z.id === n.zone);
+  const r = t ? (t.roles[n.id] || "") : "";
+  let h = '<button class="d-close" type="button" id="close">Close</button>';
+  h += ico(NODE_ICON[n.id], "nicon big");
+  h += '<div class="d-k">' + z.title + " · " + n.num + "</div><h2>" + n.title + "</h2><p>" + n.desc + "</p>";
+  h += '<p class="d-owner">Who controls it: ' + OWNER[n.zone] + "</p>";
+  if (state.comp && compById[state.comp]) {
+    h += '<p class="d-owner">In the system diagram: <b>' + compById[state.comp].title + "</b>, part of this layer.</p>";
+  }
+  if (t) {
+    h += '<p class="d-role">' + (r
+      ? "For <b>" + t.name.toLowerCase() + "</b>, this layer is " + r.split("").map(x => ROLE_LONG[x]).join(" and ") + "."
+      : "<b>" + t.name + "</b> doesn't pass through this layer.") + "</p>";
+  }
+  h += '<h3 class="v"><i class="key v"></i>Weak points</h3><ul class="items v">' + n.v.map(v =>
+    "<li><span class=\"tagrow\"><b>" + v[0] + "</b>" + (v[2] ? owaspTags(v[2]) : "") + "</span><span>" + v[1] + "</span></li>").join("") + "</ul>";
+  h += '<h3 class="p"><i class="key p"></i>Defenses</h3><ul class="items p">' + n.p.map(p =>
+    '<li class="' + p[2] + '"><span class="tagrow"><b>' + p[0] + '</b><span class="mat"><i class="dot ' + p[2] + '"></i>' + MAT_NAME[p[2]] + "</span></span><span>" + p[1] + "</span></li>").join("") + "</ul>";
+  h += '<p class="d-owner d-mat">Maturity labels show how widely a defense is used, not proof that it works. ' + OURTAG.idea + "</p>";
+  if (n.refs.length) {
+    h += "<h3>Read more</h3><ul class=\"refs\">" + n.refs.map(x => '<li><a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + "</a></li>").join("") + "</ul>";
+  }
+  el.innerHTML = h;
+  el.classList.add("open");
+  el.scrollTop = 0;
+  $("close").addEventListener("click", () => selectNode(null));
+}
+
+function selectNode(id, comp) {
+  state.node = id;
+  state.comp = id ? (comp || null) : null;
+  renderAll();
+  if (id && (narrow() || state.view === "system")) $("close") && $("close").focus();
+}
+
+function setView() {
+  const h = location.hash;
+  const v = h === "#matrix" ? "matrix" : h === "#system" ? "system" : "map";
+  state.view = v;
+  ["map", "system", "matrix"].forEach(x => {
+    $("view-" + x).hidden = v !== x;
+    $("tab-" + x).setAttribute("aria-current", v === x ? "page" : "false");
+  });
+  $("app").classList.toggle("view-system", v === "system");
+}
+
+function renderAll() {
+  document.getElementById("app").classList.toggle("show-gaps", state.gaps);
+  $("gaps").checked = state.gaps;
+  renderChips();
+  renderMap();
+  renderMatrix();
+  updateSystem();
+  renderDetail();
+}
+
+document.addEventListener("click", e => {
+  const tb = e.target.closest("[data-threat]");
+  if (tb) {
+    const id = tb.getAttribute("data-threat") || null;
+    state.threat = (id && state.threat === id && tb.classList.contains("chip")) ? null : id;
+    save();
+    renderAll();
+    return;
+  }
+  const cb = e.target.closest("[data-comp]");
+  if (cb) { selectNode(cb.getAttribute("data-node"), cb.getAttribute("data-comp")); return; }
+  const nb = e.target.closest("[data-node]");
+  if (nb) { selectNode(nb.getAttribute("data-node")); }
+});
+$("gaps").addEventListener("change", e => { state.gaps = e.target.checked; save(); renderAll(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && state.node) { selectNode(null); return; }
+  const cb = e.target.closest && e.target.closest("[data-comp]");
+  if (cb && (e.key === "Enter" || e.key === " ")) {
+    e.preventDefault();
+    selectNode(cb.getAttribute("data-node"), cb.getAttribute("data-comp"));
+  }
+});
+window.addEventListener("hashchange", () => { setView(); renderDetail(); });
+
+buildCheese();
+buildSystem();
+setView();
+renderAll();
+</script>
+
+<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[target="_blank"]');if(a&&/^(index|atlas|pathways|society|governance|measuring|ecosystem|fiction|experts)\.html/.test(a.getAttribute("href")||""))a.removeAttribute("target");},true);</script>
+</body>
+</html>

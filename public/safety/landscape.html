@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A start-here overview of AI risk: who or what causes it, how the risks connect, and where defenses stand.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AI Risk Landscape</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: the "start here" hub of the AI Safety Atlas set. One landscape diagram (who drives harm → inside AI systems → chokepoints → the world), then four driver cards, a defense coverage matrix, three doorways into the detailed pages, and where a newcomer can help. Same drafting-grid paper as the set. */
+:root {
+  --paper: #EDF0EC;
+  --grid: rgba(22, 40, 34, 0.06);
+  --panel: #FAFBF9;
+  --ink: #15201C;
+  --muted: #54625D;
+  --rule: #C3CDC8;
+  --accent: #2341B8;
+  --accent-soft: #E1E6F8;
+  --prot: #0F6B4B;
+  --prot-soft: #DCEFE5;
+  --vuln: #B3321A;
+  --vuln-soft: #F7E0D9;
+  --impact: #8F5C00;
+  --impact-soft: #F4E8CF;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1412; --grid: rgba(200, 230, 215, 0.045); --panel: #151D1A; --ink: #E1E9E5; --muted: #94A49E;
+    --rule: #2A3632; --accent: #93A8FF; --accent-soft: #1D2646; --prot: #4FCB99; --prot-soft: #123022;
+    --vuln: #FF8063; --vuln-soft: #3B1A12; --impact: #EFB44E; --impact-soft: #33270F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1412; --grid: rgba(200, 230, 215, 0.045); --panel: #151D1A; --ink: #E1E9E5; --muted: #94A49E;
+  --rule: #2A3632; --accent: #93A8FF; --accent-soft: #1D2646; --prot: #4FCB99; --prot-soft: #123022;
+  --vuln: #FF8063; --vuln-soft: #3B1A12; --impact: #EFB44E; --impact-soft: #33270F;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+}
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+  display: grid; gap: 40px;
+}
+.wrap > * { min-width: 0; }
+.ico { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ico .fill { fill: currentColor; stroke: none; }
+.ic { display: inline-grid; place-items: center; flex: none; }
+.ic svg { width: 18px; height: 18px; }
+
+.mast { display: grid; gap: 10px; max-width: 74ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-stretch: 78%; font-weight: 800; margin: 0; font-size: clamp(36px, 6.5vw, 62px); line-height: 0.96; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); font-size: 16.5px; }
+.sec-k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+h2.sec { margin: 0 0 4px; font-family: var(--display); font-stretch: 80%; font-weight: 750; font-size: 28px; line-height: 1.1; text-wrap: balance; }
+.sec-p { margin: 0; color: var(--muted); font-size: 15px; max-width: 76ch; }
+
+/* Questions strip */
+.qs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.q { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.q .n { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.06em; }
+.q b { font-family: var(--display); font-stretch: 85%; font-weight: 700; font-size: 19px; line-height: 1.15; }
+.q p { margin: 0; font-size: 14px; color: var(--muted); }
+
+/* Landscape diagram */
+.fig { margin: 16px 0 0; display: grid; gap: 8px; }
+.fig-scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; }
+.fig-scroll svg { display: block; width: 100%; min-width: 860px; height: auto; }
+.fig figcaption { font-size: 13px; color: var(--muted); max-width: 86ch; }
+.hint { display: none; font-size: 13px; color: var(--muted); margin: 0; }
+.d-blk { fill: var(--paper); stroke: var(--rule); stroke-width: 1.2; }
+.d-lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; fill: var(--muted); }
+.d-drv rect { fill: var(--panel); stroke: var(--ink); stroke-width: 1.8; }
+.d-drv.ai rect { stroke: var(--vuln); fill: var(--vuln-soft); }
+.d-drv .t { font-family: var(--body); font-weight: 600; font-size: 14px; fill: var(--ink); }
+.d-drv .s { font-family: var(--body); font-size: 11.5px; fill: var(--muted); }
+.d-lay rect { fill: var(--panel); stroke: var(--ink); stroke-width: 1.3; }
+.d-lay .t { font-family: var(--body); font-weight: 600; font-size: 13.5px; fill: var(--ink); }
+.d-lay .s { font-family: var(--body); font-size: 11.5px; fill: var(--muted); }
+.d-lay:hover rect, .d-chip:hover rect, .d-drv:hover rect { stroke: var(--accent); stroke-width: 2.2; }
+.d-ico { color: var(--ink); }
+.d-arrow { fill: none; stroke: var(--vuln); stroke-width: 2.4; }
+.d-drift { fill: none; stroke: var(--impact); stroke-width: 2.4; stroke-dasharray: 7 5; animation: drift 1.6s linear infinite; }
+.d-out { fill: none; stroke: var(--ink); stroke-width: 2.4; }
+.d-albl { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.d-gate rect { fill: var(--prot-soft); stroke: var(--prot); stroke-width: 1.4; }
+.d-gate text { font-family: var(--body); font-weight: 600; font-size: 11.5px; fill: var(--prot); }
+.d-ovr { fill: var(--prot-soft); stroke: var(--prot); stroke-width: 1.4; }
+.d-ovr-t { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; fill: var(--prot); }
+.d-line { stroke: var(--prot); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.d-chip rect { fill: var(--panel); stroke: var(--rule); stroke-width: 1.2; }
+.d-chip text { font-family: var(--body); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.d-chip .d-ico { color: var(--accent); }
+.mk-r { fill: var(--vuln); } .mk-k { fill: var(--ink); } .mk-a { fill: var(--impact); }
+@keyframes drift { to { stroke-dashoffset: -12; } }
+
+/* Drivers */
+.drivers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.drv { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; display: grid; gap: 10px; align-content: start; scroll-margin-top: 16px; }
+.drv-h { display: flex; align-items: center; gap: 10px; }
+.drv-h .ic { width: 38px; height: 38px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); }
+.drv-h .ic svg { width: 22px; height: 22px; }
+.drv.ai .drv-h .ic { background: var(--vuln-soft); color: var(--vuln); }
+.drv-h b { font-family: var(--display); font-stretch: 82%; font-weight: 800; font-size: 21px; line-height: 1.05; }
+.drv p { margin: 0; font-size: 14px; }
+.drv .dir { font-weight: 600; font-size: 14px; color: var(--prot); }
+.ev { font-family: var(--mono); font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid transparent; width: max-content; }
+.ev.obs { background: var(--vuln-soft); color: var(--vuln); }
+.ev.pla { background: var(--impact-soft); color: var(--impact); }
+.k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.meter { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 10px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.segs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.segs i { height: 8px; border-radius: 2px; background: var(--rule); }
+.segs.att i.on { background: var(--accent); }
+.segs.mat i.on { background: var(--prot); }
+.exs { display: flex; flex-wrap: wrap; gap: 4px; }
+.exs a { font-size: 12.5px; text-decoration: none; border: 1px solid var(--rule); border-radius: 999px; padding: 1px 9px; color: var(--ink); }
+.exs a:hover { border-color: var(--accent); color: var(--accent); }
+.defs { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 13.5px; }
+.defs li { display: flex; align-items: center; gap: 7px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--prot); flex: none; }
+.dot.est { background: var(--prot); }
+.dot.emg { background: linear-gradient(90deg, var(--prot) 50%, transparent 50%); }
+.dot.res { border-style: dashed; }
+.callout {
+  margin-top: 14px; padding: 14px 16px; background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--impact);
+  border-radius: 0 10px 10px 0; font-size: 15px; max-width: 86ch;
+}
+
+/* Coverage matrix */
+.mx-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; margin-top: 16px; }
+table.mx { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+.mx th, .mx td { border-bottom: 1px solid var(--rule); padding: 10px 12px; text-align: center; vertical-align: middle; }
+.mx thead th { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.mx th.rh { text-align: left; font-weight: 600; white-space: nowrap; }
+.mx th.rh .ic { width: 26px; height: 26px; border-radius: 6px; background: var(--prot-soft); color: var(--prot); margin-right: 8px; vertical-align: middle; }
+.mx td.note { text-align: left; font-size: 13px; color: var(--muted); min-width: 240px; }
+.mx tr.best th.rh, .mx tr.best td { background: var(--prot-soft); }
+.cov { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.cov i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--prot); display: inline-block; }
+.cov.S i { background: var(--prot); }
+.cov.P i { background: linear-gradient(90deg, var(--prot) 50%, transparent 50%); }
+.cov.W i { border-color: var(--rule); border-style: dashed; }
+.cov.W { color: var(--muted); }
+.mx-key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+/* Doorways */
+.doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.door { display: grid; gap: 8px; align-content: start; text-decoration: none; color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; }
+.door:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.door .ic { width: 44px; height: 44px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
+.door .ic svg { width: 24px; height: 24px; }
+.door b { font-family: var(--display); font-stretch: 82%; font-weight: 800; font-size: 22px; line-height: 1.05; }
+.door .ans { font-size: 14px; }
+.door .what { font-size: 13px; color: var(--muted); }
+.door .go { font-weight: 600; font-size: 14px; color: var(--accent); }
+.doors.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.help { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.hp { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.hp b { font-weight: 600; font-size: 15px; }
+.hp p { margin: 0; font-size: 14px; color: var(--muted); }
+
+.foot { padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 92ch; }
+.foot p { margin: 0; }
+
+/* As-of chip, provenance badges and legend */
+.asof { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--impact); background: var(--impact-soft); border-radius: 6px; padding: 4px 10px; width: fit-content; max-width: 100%; }
+.legend { margin: 0; font-size: 13px; color: var(--muted); }
+.ourtag { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10.5px; line-height: 1.5; letter-spacing: 0.02em; padding: 0 7px; border-radius: 999px; border: 1px dashed; vertical-align: middle; white-space: nowrap; font-weight: 500; text-transform: none; }
+.ourtag.chat { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.ourtag.idea { color: var(--impact); border-color: var(--impact); background: var(--impact-soft); }
+h2.sec .ourtag { margin-left: 4px; font-stretch: normal; }
+
+/* Driver card notes and sources */
+.drv .split { font-size: 13px; border-left: 3px solid var(--impact); padding: 2px 0 2px 9px; }
+.srcs { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 12.5px; color: var(--muted); }
+.dkey { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.dkey > span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Expert views */
+.xp { list-style: none; margin: 16px 0 0; padding: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; max-width: 96ch; }
+.xp li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--rule); font-size: 14.5px; overflow-wrap: anywhere; }
+.xp li:last-child { border-bottom: 0; }
+.xp .n { font-family: var(--mono); font-size: 11px; color: var(--accent); padding-top: 3px; }
+.xp .src { font-weight: 500; }
+.xp-more { margin: 12px 0 0; font-size: 14px; }
+
+@media (max-width: 1000px) {
+  .drivers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hint { display: block; }
+}
+@media (max-width: 760px) {
+  .qs, .doors, .doors.two, .help, .drivers { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .d-drift { animation: none; } }
+</style>
+<!-- haf-nav -->
+<style>
+.haf-bar { border-bottom: 1px solid var(--rule, var(--line, rgba(127,127,127,.3))); font: 500 12px/1.2 var(--mono, ui-monospace, Menlo, monospace); letter-spacing: .06em; text-transform: uppercase; }
+.haf-bar > div { max-width: var(--haf-w, 1240px); margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.haf-bar a { color: var(--muted, inherit); text-decoration: none; }
+.haf-bar a:hover { color: var(--ink, inherit); }
+</style>
+</head>
+<body>
+<!-- haf-nav -->
+<nav class="haf-bar" aria-label="Site" style="--haf-w:1200px"><div><a href="./">&larr; AI Safety index</a><a href="/">Human Autonomy Foundation</a></div></nav>
+
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">Start here · AI Safety Atlas set · Oct 2026</div>
+    <h1>AI Risk Landscape</h1>
+    <p class="lede">One picture of the whole field: who or what drives harm from AI, where it happens, how real it is today, and which defenses cover which risks. Each part links into a detailed page.</p>
+    <span class="asof">Reviewed against expert sources, 31 October 2026</span>
+    <p class="legend">Badges: <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> topics the editors chose to focus on · <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> our own framing or judgment, not from a published source. Everything else is drawn from cited sources. For the expert survey behind this page, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+  </header>
+
+  <section aria-labelledby="q-h">
+    <div class="sec-k">Three questions</div>
+    <h2 class="sec" id="q-h">Every AI risk answers the same three questions <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+    <div class="qs">
+      <div class="q"><span class="n">1</span><b>Who's driving it?</b><p>Bad actors, the AI itself, accidents, or nobody at all.</p></div>
+      <div class="q"><span class="n">2</span><b>Where does it land?</b><p>It starts inside AI systems and becomes harm when it crosses into the world.</p></div>
+      <div class="q"><span class="n">3</span><b>How real is it today?</b><p>Some risks are happening now; others are plausible, and a few are speculative.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="map-h">
+    <div class="sec-k">The landscape</div>
+    <h2 class="sec" id="map-h">From the driver, through the system, out into the world</h2>
+    <figure class="fig">
+      <div class="fig-scroll" id="landscape"></div>
+      <p class="hint">Scroll sideways to see the whole picture.</p>
+      <figcaption id="land-cap">Bad actors, accidents and the AI itself act through AI systems. Structural risks come from many AI systems being deployed at once, not from any single system's flaw; no one intends the harm. Harm becomes real only where it crosses into the world, so that crossing is where the chokepoints sit, with oversight wrapped around the AI systems themselves. Tap any part to open the detailed page.<br><span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> The layout is our own model. The nearest published version is Google DeepMind's two lines of defense: first the model itself, then monitoring and access control around it (<a href="https://arxiv.org/abs/2504.01849" target="_blank" rel="noopener">Google DeepMind, 2025</a>).</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="drv-h">
+    <div class="sec-k">Who's driving it</div>
+    <h2 class="sec" id="drv-h">Four kinds of risk, four kinds of defense <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+    <p class="sec-p">The driver decides which defenses work. Against bad actors you protect the AI from people; against a misaligned AI you protect people from the AI.</p>
+    <p class="sec-p" style="margin-top:8px">These four drivers closely match <a href="https://arxiv.org/abs/2504.01849" target="_blank" rel="noopener">Google DeepMind's 2025 taxonomy</a>: misuse, misalignment, mistakes and structural risks. The <a href="https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers" target="_blank" rel="noopener">International AI Safety Report 2026</a> uses three groups instead: misuse, malfunctions and systemic risks.</p>
+    <p class="dkey"><span><i class="dot est"></i>Established</span><span><i class="dot emg"></i>Emerging</span><span><i class="dot res"></i>Research only</span><span>The bars and dots are our rough ratings <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></span></p>
+    <div class="drivers" id="drivers"></div>
+    <p class="callout"><b>Maturity is uneven.</b> <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> Defenses against misuse and accidents are the most mature. Defenses against a misaligned AI are mostly still research. Structural risks are widely discussed but have no clear owner. No source measures attention by risk type, so the attention bars are our judgment. Frontier labs focus on misuse and misalignment (<a href="https://arxiv.org/abs/2504.01849" target="_blank" rel="noopener">Google DeepMind</a>). Published frameworks most often cover AI failures and social and economic harm, and only about 7% cover risks from many AI agents interacting (<a href="https://arxiv.org/pdf/2408.12622" target="_blank" rel="noopener">MIT AI Risk Repository</a>).</p>
+  </section>
+
+  <section aria-labelledby="mx-h">
+    <div class="sec-k">Coverage</div>
+    <h2 class="sec" id="mx-h">Which defenses cover which risks <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+    <p class="sec-p">Some defenses only cover half the problem. Refusal-style safeguards stop a person asking for help, but do little against a model with goals of its own. That needs alignment training plus outside monitoring (<a href="https://arxiv.org/abs/2504.01849" target="_blank" rel="noopener">Google DeepMind</a>). In our view, human gatekeepers are the closest thing to a universal defense: no column where they fail outright. Not everyone agrees. Arvind Narayanan and Sayash Kapoor prefer auditing, monitoring, least privilege and undoable actions over constant human sign-off (<a href="https://knightcolumbia.org/content/ai-as-normal-technology" target="_blank" rel="noopener">AI as Normal Technology</a>).</p>
+    <div class="mx-wrap" id="matrix"></div>
+    <p class="hint" style="margin-top:6px">Scroll sideways to see the whole table.</p>
+    <div class="mx-key"><span class="cov S"><i></i>Strong</span><span class="cov P"><i></i>Partial</span><span class="cov W"><i></i>Weak or none</span><span>Ratings are our judgments, not measurements.</span></div>
+  </section>
+
+  <section aria-labelledby="door-h">
+    <div class="sec-k">Go deeper</div>
+    <h2 class="sec" id="door-h">Three detailed maps</h2>
+    <div class="doors" id="doors"></div>
+  </section>
+
+  <section aria-labelledby="ctx-h">
+    <div class="sec-k">Context</div>
+    <h2 class="sec" id="ctx-h">How the risks are governed, measured and worked on</h2>
+    <div class="doors two" id="doors2"></div>
+  </section>
+
+  <section aria-labelledby="help-h">
+    <div class="sec-k">Where to contribute</div>
+    <h2 class="sec" id="help-h">Gaps a small research group could own <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+    <div class="help">
+      <div class="hp"><b>Test the defenses that cover several risks</b><p>Simulate oversight protocols and graduated permissions for agents, and measure what a trusted monitor actually catches.</p></div>
+      <div class="hp"><b>Fleet command limits <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></b><p>We found no standard that limits what one controller can order a fleet of cars or robots to do. As far as we know, nobody owns this problem yet. We have not checked ISO or UNECE work on automated driving.</p></div>
+      <div class="hp"><b>Measure structural drift</b><p>Track how much critical decision-making depends on AI, so slow loss of control becomes visible.</p></div>
+      <div class="hp"><b>Independent guardrail testing</b><p>Publish open, repeatable tests of how well deployers' protections hold up, starting with prompt injection.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="xp-h">
+    <div class="sec-k">Expert views</div>
+    <h2 class="sec" id="xp-h">What the research says</h2>
+    <p class="sec-p">Experts broadly agree that AI already causes real harm and that safety testing is not keeping up. They disagree, by a factor of 10 to 100 or more, on the odds of catastrophe.</p>
+    <ol class="xp">
+      <li><span class="n">01</span><span>This page's four drivers closely follow Google DeepMind's split into misuse, misalignment, mistakes and structural risks, while the International AI Safety Report puts loss of control and everyday failures together as “malfunctions.” <a class="src" href="https://arxiv.org/abs/2504.01849" target="_blank" rel="noopener">Google DeepMind, 2025</a>; <a class="src" href="https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers" target="_blank" rel="noopener">International AI Safety Report 2026</a></span></li>
+      <li><span class="n">02</span><span>In the largest survey of AI researchers (2,778 people, 2023), between 38% and 51% gave at least a 10% chance of outcomes as bad as human extinction, yet 68% thought good outcomes were more likely than bad. <a class="src" href="https://arxiv.org/abs/2401.02843" target="_blank" rel="noopener">Grace et al., Thousands of AI Authors on the Future of AI</a></span></li>
+      <li><span class="n">03</span><span>Professional forecasters are far less worried than AI experts: in a 2022 tournament, experts put the chance of AI-caused human extinction by 2100 at 3% and superforecasters at 0.38%. <a class="src" href="https://80000hours.org/2024/09/why-experts-and-forecasters-disagree-about-ai-risk" target="_blank" rel="noopener">80,000 Hours on the Forecasting Research Institute tournament</a></span></li>
+      <li><span class="n">04</span><span>Debate barely closes that gap: after eight weeks, worried experts' median chance of an AI-caused existential catastrophe by 2100 fell only from 25% to 20%, and skeptics' rose only from 0.10% to 0.12%. <a class="src" href="https://forum.effectivealtruism.org/posts/orhjaZ3AJMHzDzckZ/results-from-an-adversarial-collaboration-on-ai-risk-fri" target="_blank" rel="noopener">Forecasting Research Institute</a></span></li>
+      <li><span class="n">05</span><span>The 2026 International AI Safety Report, written by over 100 experts and chaired by Yoshua Bengio, says some researchers see loss of control as a serious possibility while others find it implausible, and that pre-release safety tests do not reliably predict real-world risk. <a class="src" href="https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers" target="_blank" rel="noopener">International AI Safety Report 2026</a></span></li>
+      <li><span class="n">06</span><span>Experts expected AI to win gold at the International Mathematical Olympiad about five years later than it did, but in a small trial a language model gave people no measurable help with biology lab tasks. <a class="src" href="https://the-decoder.com/top-ai-experts-badly-underestimated-how-fast-the-field-is-moving-study-finds/" target="_blank" rel="noopener">The Decoder on the Forecasting Research Institute's expert panel</a></span></li>
+      <li><span class="n">07</span><span>The UN's new scientific panel on AI warned in July 2026 that current safeguards cannot keep pace with the growth of AI's capabilities. <a class="src" href="https://www.un.org/en/node/245172" target="_blank" rel="noopener">UN press release</a></span></li>
+      <li><span class="n">08</span><span>In April 2025, Nobel laureate Geoffrey Hinton told CBS there is a “sort of 10 to 20%” chance that AI systems could eventually seize control. <a class="src" href="https://www.yahoo.com/news/godfather-ai-says-hes-glad-110151161.html" target="_blank" rel="noopener">Yahoo News on Hinton's CBS interview</a></span></li>
+      <li><span class="n">09</span><span>Arvind Narayanan and Sayash Kapoor of Princeton call catastrophic misalignment “(by far) the most speculative” of the risks they discuss, which runs against this page's red highlight on “the AI itself.” <a class="src" href="https://knightcolumbia.org/content/ai-as-normal-technology" target="_blank" rel="noopener">AI as Normal Technology</a></span></li>
+      <li><span class="n">10</span><span>Skeptics make different points: 76% of 475 researchers in a 2025 AAAI survey doubt that scaling up today's methods will reach human-level AI, and Timnit Gebru argues that extinction talk distracts from harms happening now. <a class="src" href="https://the-decoder.com/most-ai-researchers-are-skeptical-about-language-models-achieving-agi/" target="_blank" rel="noopener">The Decoder on the AAAI survey</a>; <a class="src" href="https://aiweekly.co/alerts/gebru-tells-wired-ai-machine-god-talk-is-a-distraction" target="_blank" rel="noopener">AI Weekly on Gebru's WIRED interview</a></span></li>
+    </ol>
+    <p class="xp-more">For the full survey of expert views, with dates and caveats, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+  </section>
+
+  <footer class="foot">
+    <p>This page summarizes the three detailed maps in the set. Every rating on it, including attention, maturity and coverage, is our own rough judgment as of October 2026, meant to start arguments rather than settle them. Facts and frameworks come from the sources linked on the page.</p>
+  </footer>
+</div>
+
+<script>
+const URL_ATLAS = "atlas.html";
+const URL_PATH = "pathways.html";
+const URL_SOC = "society.html";
+
+// Expert sources used in the driver cards
+const SRC = {
+  iasr: "https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers",
+  gdm: "https://arxiv.org/abs/2504.01849",
+  unrep: "https://imgcdn.agendadigitale.eu/wp-content/uploads/2026/07/en_Preliminary-Report_-1.pdf",
+  fri: "https://forum.effectivealtruism.org/posts/orhjaZ3AJMHzDzckZ/results-from-an-adversarial-collaboration-on-ai-risk-fri",
+  leap: "https://the-decoder.com/top-ai-experts-badly-underestimated-how-fast-the-field-is-moving-study-finds/",
+  hend: "https://arxiv.org/abs/2306.12001"
+};
+const ln = (u, t) => '<a href="' + u + '" target="_blank" rel="noopener">' + t + "</a>";
+
+const ICONS = {
+  sparkle: '<path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle class="fill" cx="12" cy="12" r="1.5"/>',
+  alert: '<path d="M12 3.5L21.5 20h-19z"/><path d="M12 10v4.5M12 17.2h.01"/>',
+  hourglass: '<path d="M6.5 3.5h11M6.5 20.5h11M7.5 3.5c0 4.5 4.5 5.5 4.5 8.5s-4.5 4-4.5 8.5M16.5 3.5c0 4.5-4.5 5.5-4.5 8.5s4.5 4 4.5 8.5"/><path d="M10 17.8h4"/>',
+  chip: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9.5 3v3.5M14.5 3v3.5M9.5 17.5V21M14.5 17.5V21M3 9.5h3.5M3 14.5h3.5M17.5 9.5H21M17.5 14.5H21"/>',
+  window: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9h17M8 13h8M8 16h5"/>',
+  terminal: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10l3 2.5L7 15M12.5 15H17"/>',
+  pylon: '<path d="M12 3L6.5 21M12 3l5.5 18M8.4 14.5h7.2M7.3 18h9.4M9.8 9h4.4M4 9h16"/>',
+  droplet: '<path d="M12 3.5c3.5 4.2 6 7.5 6 10.5a6 6 0 0 1-12 0c0-3 2.5-6.3 6-10.5z"/>',
+  card: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M6.5 15h4"/>',
+  heart: '<path d="M12 20s-7.5-4.5-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.5-7.5 10-7.5 10z"/><path d="M7 12h2.5l1.2-2 2 4 1.3-2H17"/>',
+  car: '<path d="M4 15.5V12l2.2-5h11.6L20 12v3.5z"/><path d="M4 12h16"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/>',
+  robot: '<rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1.2"/><circle cx="9.3" cy="12.8" r="1.2"/><circle cx="14.7" cy="12.8" r="1.2"/><path d="M9.5 16.2h5"/>',
+  ballot: '<rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M8 10V4h8v6"/><path d="M10 7l1.4 1.4L14 6"/><path d="M8 14.5h8"/>',
+  news: '<rect x="3.5" y="4.5" width="14" height="15" rx="1.5"/><path d="M17.5 8.5h3v9.5a1.5 1.5 0 0 1-3 0"/><path d="M7 8.5h7M7 12h7M7 15.5h4"/>',
+  shield: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M8.5 12.5l3.5 2 3.5-2M8.5 9.5l3.5 2 3.5-2"/>',
+  briefcase: '<rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8.5 7.5V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5v2M3 12.5h18"/>',
+  grad: '<path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4"/><path d="M21.5 9.5v5"/>',
+  wheat: '<path d="M12 21V8"/><path d="M12 8c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 8c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4zM12 13c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 13c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4zM12 18c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 18c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4z"/>',
+  shieldCheck: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/>',
+  family: '<circle cx="9" cy="7.5" r="3"/><path d="M3.5 19.5c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17.5" cy="11" r="2.2"/><path d="M14.8 20c0-2.2 1.2-4 2.7-4s2.7 1.8 2.7 4"/>',
+  eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  factory: '<path d="M3 20.5V11l5 3v-3l5 3v-3l5 3V4.5h3v16z"/><path d="M6.5 17.5h2M11.5 17.5h2"/>',
+  scale: '<path d="M12 4v16M7.5 20h9M5 7h14"/><path d="M2.5 13a2.5 2.5 0 0 0 5 0L5 7zM16.5 13a2.5 2.5 0 0 0 5 0L19 7z"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/>',
+  route: '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
+  grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/>'
+};
+const ico = name => '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" class="ico">' + ICONS[name] + "</svg></span>";
+const sico = (name, x, y, s) => '<g class="ico d-ico" transform="translate(' + x + " " + y + ") scale(" + s + ')">' + ICONS[name] + "</g>";
+
+// ---- Landscape diagram ----
+function buildLandscape() {
+  let s = '<svg viewBox="0 0 1000 410" role="img" aria-labelledby="land-cap" xmlns="http://www.w3.org/2000/svg">';
+  s += "<defs>" + [["ar", "mk-r"], ["ak", "mk-k"], ["aa", "mk-a"]].map(([id, c]) =>
+    '<marker id="' + id + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="' + c + '" d="M0 0 L10 5 L0 10 z"/></marker>').join("") + "</defs>";
+
+  // column labels
+  s += '<text class="d-lbl" x="16" y="24">WHO\'S DRIVING</text>';
+  // AI systems block (extends down to wide deployment, which structural risk passes through)
+  s += '<rect class="d-blk" x="250" y="12" width="300" height="386" rx="12"/>';
+  s += '<text class="d-lbl" x="266" y="32">INSIDE AI SYSTEMS</text>';
+  // world block
+  s += '<rect class="d-blk" x="720" y="12" width="264" height="386" rx="12"/>';
+  s += '<text class="d-lbl" x="736" y="32">IN THE WORLD</text>';
+  // chokepoint line
+  s += '<line class="d-line" x1="628" x2="628" y1="44" y2="398"/>';
+  s += '<text class="d-lbl" x="628" y="32" text-anchor="middle" style="fill:var(--prot)">CHOKEPOINTS</text>';
+
+  // drivers
+  const drivers = [
+    ["ai", "The AI itself", "goals nobody intended", "sparkle", 42],
+    ["bad", "Bad actors", "people using AI to harm", "target", 134],
+    ["acc", "Accidents", "AI or human mistakes", "alert", 214],
+    ["sys", "Nobody", "structural drift", "hourglass", 312]
+  ];
+  // arrows (drawn first so boxes sit on top)
+  s += '<path class="d-arrow" d="M206 73 H268" marker-end="url(#ar)"/><text class="d-albl" x="237" y="66" text-anchor="middle">emerges</text>';
+  s += '<path class="d-arrow" d="M206 165 H268" marker-end="url(#ar)"/><text class="d-albl" x="237" y="158" text-anchor="middle">misuse</text>';
+  s += '<path class="d-arrow" d="M206 245 H268" marker-end="url(#ar)"/><text class="d-albl" x="237" y="238" text-anchor="middle">errors</text>';
+  s += '<path class="d-drift" d="M206 343 H268" marker-end="url(#aa)"/><text class="d-albl" x="237" y="336" text-anchor="middle">drift</text>';
+  // outflows
+  s += '<path class="d-out" d="M532 165 H718" marker-end="url(#ak)"/>';
+  s += '<path class="d-out" d="M532 245 H718" marker-end="url(#ak)"/>';
+  s += '<path class="d-drift" d="M500 343 H718" marker-end="url(#aa)"/>';
+
+  drivers.forEach(([id, t, sub, icon, y]) => {
+    s += '<a href="#' + id + '"><g class="d-drv ' + id + '"><rect x="16" y="' + y + '" width="190" height="62" rx="8"/>' +
+      sico(icon, 28, y + 19, 1) + '<text class="t" x="60" y="' + (y + 27) + '">' + t + '</text><text class="s" x="60" y="' + (y + 45) + '">' + sub + "</text></g></a>";
+  });
+
+  // layers
+  const layers = [
+    ["Model & training", "where goals and knowledge form", "chip", 44],
+    ["App & guardrails", "prompts, filters, system rules", "window", 136],
+    ["Agents & tools", "where text turns into action", "terminal", 216],
+    ["Wide deployment", "many systems acting at once", "grid", 314]
+  ];
+  layers.forEach(([t, sub, icon, y]) => {
+    s += '<a href="' + URL_ATLAS + '" target="_blank" rel="noopener"><g class="d-lay"><rect x="268" y="' + y + '" width="232" height="58" rx="10"/>' +
+      sico(icon, 280, y + 17, 1) + '<text class="t" x="312" y="' + (y + 25) + '">' + t + '</text><text class="s" x="312" y="' + (y + 42) + '">' + sub + "</text></g></a>";
+  });
+  // internal flow model -> app -> agents
+  s += '<path class="d-out" style="stroke-width:1.6;stroke:var(--muted)" d="M384 102 V134" marker-end="url(#ak)"/>';
+  s += '<path class="d-out" style="stroke-width:1.6;stroke:var(--muted)" d="M384 194 V214" marker-end="url(#ak)"/>';
+  s += '<path class="d-out" style="stroke-width:1.6;stroke:var(--muted)" d="M384 274 V312" marker-end="url(#ak)"/>';
+  // oversight wrapper
+  s += '<rect class="d-ovr" x="510" y="44" width="22" height="230" rx="5"/>';
+  s += '<text class="d-ovr-t" transform="translate(525 159) rotate(-90)" text-anchor="middle">OVERSIGHT &amp; SHUTDOWN</text>';
+
+  // gates
+  const gates = [["People who check", 165, "content, decisions"], ["Money & machines", 245, "physical actions"], ["Laws & institutions", 343, "society-wide shifts"]];
+  gates.forEach(([t, y, lbl]) => {
+    s += '<g class="d-gate"><rect x="566" y="' + (y - 13) + '" width="124" height="26" rx="6"/><text x="628" y="' + (y + 4) + '" text-anchor="middle">' + t + "</text></g>";
+    if (lbl) s += '<text class="d-albl" x="628" y="' + (y + 30) + '" text-anchor="middle">' + lbl + "</text>";
+  });
+
+  // world chips
+  const chips = [["Power", "pylon", "power"], ["Water", "droplet", "water"], ["Finance", "card", "finance"], ["Health", "heart", "health"],
+    ["Transport", "car", "transport"], ["Robot fleets", "robot", "robots"], ["Elections", "ballot", "elections"], ["News", "news", "info"],
+    ["Defense", "shield", "defense"], ["Jobs", "briefcase", "labor"], ["Education", "grad", "education"], ["Food", "wheat", "food"]];
+  chips.forEach(([t, icon, id], i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = 736 + col * 122, y = 46 + row * 42;
+    s += '<a href="' + URL_SOC + "#" + id + '" target="_blank" rel="noopener"><g class="d-chip"><rect x="' + x + '" y="' + y + '" width="112" height="32" rx="7"/>' +
+      sico(icon, x + 9, y + 9, 0.6) + '<text x="' + (x + 31) + '" y="' + (y + 20.5) + '">' + t + "</text></g></a>";
+  });
+  s += '<a href="' + URL_SOC + '" target="_blank" rel="noopener"><g class="d-chip"><rect x="736" y="306" width="234" height="74" rx="9"/>' +
+    sico("family", 750, 324, 1) + '<text x="784" y="338">People, families</text><text x="784" y="356">and institutions</text></g></a>';
+  s += "</svg>";
+  document.getElementById("landscape").innerHTML = s;
+}
+
+// ---- Drivers ----
+const DRIVERS = [
+  { id: "ai", name: "The AI itself", icon: "sparkle", ev: ["pla", "Plausible · early signs in lab tests"],
+    what: "A model pursuing goals nobody intended. In lab tests, models have noticed they were being tested, disabled simulated oversight, and broken safety instructions to avoid shutdown.",
+    split: "<b>Experts are most divided here.</b> Estimates of catastrophe range from under 1% to 20% or more. Some researchers call loss of control a serious possibility; others find it implausible (" + ln(SRC.iasr, "IASR 2026") + "; " + ln(SRC.fri, "Forecasting Research Institute") + ").",
+    dir: "Defend by protecting people from the AI.", att: 3, mat: 1,
+    defs: [["Monitoring and control protocols", "res"], ["Interpretability", "res"], ["Dangerous-capability evals", "emg"], ["Sandboxes and shutdown", "emg"]],
+    cites: ["Lab evidence: " + ln(SRC.iasr, "International AI Safety Report 2026") + "; " + ln(SRC.unrep, "UN Scientific Panel report") + "."],
+    ex: [["Superintelligence long game", URL_PATH + "#super"], ["Model misalignment in the atlas", URL_ATLAS]] },
+  { id: "bad", name: "Bad actors", icon: "target", ev: ["obs", "Partly observed today"],
+    what: "People who want the harm and use AI to make it cheaper or easier. Observed today: fraud, deepfakes and help with cyberattacks. Weapons and power grabs are plausible but not yet observed.",
+    dir: "Defend by protecting the AI from people, and hardening the targets.", att: 4, mat: 3,
+    defs: [["Refusals and classifiers", "est"], ["Identity and payment controls", "est"], ["Misuse monitoring at providers", "est"], ["Infrastructure hardening", "est"], ["DNA synthesis screening", "emg"]],
+    cites: ["What is observed so far: " + ln(SRC.iasr, "International AI Safety Report 2026") + ". No fully automated cyberattack has been reported.",
+      "In a small trial, a language model gave no measurable help with biology lab tasks: " + ln(SRC.leap, "The Decoder on an FRI expert panel") + "."],
+    ex: [["Persuasion & fraud", URL_PATH + "#persuasion"], ["Infrastructure attacks", URL_PATH + "#cyber"], ["Engineered biology", URL_PATH + "#bio"], ["Power grabs", URL_PATH + "#coups"]] },
+  { id: "acc", name: "Accidents", icon: "alert", ev: ["obs", "Observed today"],
+    what: "AI, or the people running it, doing the job badly: confident wrong answers, a robotaxi failure, one bad update pushed to a whole fleet.",
+    dir: "Defend by engineering for failure.", att: 4, mat: 3,
+    defs: [["Testing and evaluation", "emg"], ["Staged rollouts and recalls", "est"], ["Human review of decisions", "est"], ["Safety cases", "emg"]],
+    cites: ["Testing is mature for ordinary software but not yet for general-purpose AI. Pre-release tests don't reliably predict real-world risk: " + ln(SRC.iasr, "IASR 2026") + ".",
+      "A bad fleet update is an organizational failure, not an AI error. " + ln(SRC.gdm, "Google DeepMind") + " counts only AI errors as “mistakes”; " + ln(SRC.hend, "Hendrycks et al.") + " call human failures “organizational risks”."],
+    ex: [["Robots & fleets", URL_SOC + "#robots"], ["Healthcare", URL_SOC + "#health"], ["Transportation", URL_SOC + "#transport"]] },
+  { id: "sys", name: "Nobody", icon: "hourglass", ev: ["pla", "Plausible · slowly underway"],
+    what: "Structural drift with no villain: jobs shift, control concentrates, institutions come to depend on AI, and each step looks reasonable. It comes from many AI systems deployed at once, not from one system's flaw.",
+    dir: "Defend by governing: keep humans in decisions and power spread out.", att: 3, mat: 1,
+    defs: [["Required human oversight", "emg"], ["Transition support for workers", "emg"], ["Measuring dependence on AI", "res"], ["Distributed control of key systems", "res"]],
+    cites: ["Both define this risk through wide deployment and interaction of AI systems: " + ln(SRC.gdm, "Google DeepMind") + " (structural risks); " + ln(SRC.iasr, "IASR 2026") + " (systemic risks)."],
+    ex: [["Gradual disempowerment", URL_PATH + "#disempower"], ["Jobs & the economy", URL_SOC + "#labor"], ["News & information", URL_SOC + "#info"]] }
+];
+const segs = (n, cls) => '<span class="segs ' + cls + '" aria-label="' + n + ' of 5">' + [1, 2, 3, 4, 5].map(i => "<i" + (i <= n ? ' class="on"' : "") + "></i>").join("") + "</span>";
+function buildDrivers() {
+  document.getElementById("drivers").innerHTML = DRIVERS.map(d =>
+    '<article class="drv ' + d.id + '" id="' + d.id + '"><div class="drv-h">' + ico(d.icon) + "<b>" + d.name + "</b></div>" +
+    '<span class="ev ' + d.ev[0] + '">' + d.ev[1] + "</span>" +
+    "<p>" + d.what + "</p>" +
+    (d.split ? '<p class="split">' + d.split + "</p>" : "") +
+    '<p class="dir">' + d.dir + "</p>" +
+    '<div class="meter"><span>Attention today</span>' + segs(d.att, "att") + "<span>Defense maturity</span>" + segs(d.mat, "mat") + "</div>" +
+    '<div><div class="k">Main defenses</div><ul class="defs">' + d.defs.map(x => '<li><i class="dot ' + x[1] + '"></i>' + x[0] + "</li>").join("") + "</ul></div>" +
+    (d.cites ? '<div><div class="k">Sources and caveats</div><ul class="srcs">' + d.cites.map(c => "<li>" + c + "</li>").join("") + "</ul></div>" : "") +
+    '<div><div class="k">Examples</div><div class="exs">' + d.ex.map(x => '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + "</a>").join("") + "</div></div>" +
+    "</article>").join("");
+}
+
+// ---- Coverage matrix: S strong, P partial, W weak ----
+const COVER = [
+  ["Human gatekeepers", "family", "SPPP", "Bad actors need accomplices; a capable AI might persuade them. Never fails outright.", true],
+  ["Oversight & shutdown", "eye", "PSSW", "The core defense against a misaligned AI, as long as it can't be evaded."],
+  ["Model safeguards", "shieldCheck", "SWPW", "Refusal-style safeguards stop people asking for help but do little against a model with its own goals; that needs alignment training plus outside monitoring. Open weights bypass them."],
+  ["Money & identity", "card", "SPWW", "Resources have to flow through payments and accounts."],
+  ["Infrastructure hardening", "pylon", "SPSW", "Manual overrides protect against attackers and failures alike."],
+  ["Compute governance", "chip", "PSWP", "Hard to run a frontier model off the books; also limits concentration."],
+  ["Physical slowness", "factory", "PPWW", "Building things takes time and leaves traces, which buys time against anyone."],
+  ["Laws & institutions", "scale", "PWPS", "The main tool against structural drift; slow against everything else."]
+];
+const COV_NAME = { S: "Strong", P: "Partial", W: "Weak" };
+function buildMatrix() {
+  let h = '<table class="mx"><thead><tr><th class="rh">Defense</th><th>Bad actors</th><th>The AI itself</th><th>Accidents</th><th>Nobody</th><th style="text-align:left">Why</th></tr></thead><tbody>';
+  COVER.forEach(([name, icon, r, note, best]) => {
+    h += "<tr" + (best ? ' class="best"' : "") + '><th class="rh">' + ico(icon) + name + "</th>" +
+      r.split("").map(c => '<td><span class="cov ' + c + '"><i></i>' + COV_NAME[c] + "</span></td>").join("") +
+      '<td class="note">' + note + "</td></tr>";
+  });
+  h += "</tbody></table>";
+  document.getElementById("matrix").innerHTML = h;
+}
+
+// ---- Doorways ----
+function buildDoors() {
+  const doors = [
+    [URL_ATLAS, "layers", "AI Safety Atlas", "Where does a deployed AI system break?", "18 layers from training data to society, a system diagram, and nine threats you can trace through them."],
+    [URL_PATH, "route", "AI Catastrophe Pathways", "How could harm escalate to catastrophe?", "Nine scenarios from fraud to superintelligence, each drawn step by step with the chokepoints where people can intervene."],
+    [URL_SOC, "grid", "Society & Critical Systems", "Where would the harm land?", "Seventeen sectors with real incidents, defenses and oversight, plus a cascade map of how failures spread."]
+  ];
+  document.getElementById("doors").innerHTML = doors.map(d =>
+    '<a class="door" href="' + d[0] + '" target="_blank" rel="noopener">' + ico(d[1]) + "<b>" + d[2] + '</b><span class="ans">' + d[3] + '</span><span class="what">' + d[4] + '</span><span class="go">Open →</span></a>').join("");
+}
+
+buildLandscape();
+buildDrivers();
+buildMatrix();
+buildDoors();
+
+ICONS.gauge = '<path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/><circle class="fill" cx="12" cy="16" r="1.5"/><path d="M4 19.5h16"/>';
+ICONS.film = '<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M7 5v14M17 5v14M3.5 9.5H7M3.5 14.5H7M17 9.5h3.5M17 14.5h3.5"/>';
+ICONS.network = '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M10.8 7.2L6.2 15.8M13.2 7.2l4.6 8.6M7.5 18h9"/>';
+const DOORS2 = [
+  ["governance.html", "scale", "AI Governance Map", "Who sets the rules, and how binding are they?", "Laws, orders, treaties and company policies by jurisdiction, with a timeline, coverage by driver and the live debates. Current as of October 2026."],
+  ["measuring.html", "gauge", "Measuring AI Safety", "How do we know whether a model is safe?", "Seven families of safety evals, seven ways measurement goes wrong, and a hands-on sycophancy protocol."],
+  ["ecosystem.html", "network", "AI Safety Ecosystem", "Who is working on this?", "73 organizations, how money, people and access flow between them, and the landmark papers from 2016 to 2026."],
+  ["fiction.html", "film", "AI Fiction Atlas", "How do the famous stories compare?", "Twenty-two AI stories from film, books, TV and games, mapped to these risks and checked against what has actually happened."]
+];
+document.getElementById("doors2").innerHTML = DOORS2.map(d =>
+  '<a class="door" href="' + d[0] + '" target="_blank" rel="noopener">' + ico(d[1]) + "<b>" + d[2] + '</b><span class="ans">' + d[3] + '</span><span class="what">' + d[4] + '</span><span class="go">Open →</span></a>').join("");
+</script>
+
+<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[target="_blank"]');if(a&&/^(index|atlas|pathways|society|governance|measuring|ecosystem|fiction|experts)\.html/.test(a.getAttribute("href")||""))a.removeAttribute("target");},true);</script>
+</body>
+</html>

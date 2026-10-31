@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="AI risks across finance, health, energy, elections, jobs and other critical systems, with measured evidence and incidents.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Society & Critical Systems</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: third page in the AI Safety Atlas set, on the same drafting-grid paper. A cascade map of sector dependencies with a side readout, a sector index, then one self-contained section per sector (built so each can later become its own page). */
+:root {
+  --paper: #EDF0EC;
+  --grid: rgba(22, 40, 34, 0.06);
+  --panel: #FAFBF9;
+  --ink: #15201C;
+  --muted: #54625D;
+  --rule: #C3CDC8;
+  --accent: #2341B8;
+  --accent-soft: #E1E6F8;
+  --prot: #0F6B4B;
+  --prot-soft: #DCEFE5;
+  --vuln: #B3321A;
+  --vuln-soft: #F7E0D9;
+  --impact: #8F5C00;
+  --impact-soft: #F4E8CF;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1412; --grid: rgba(200, 230, 215, 0.045); --panel: #151D1A; --ink: #E1E9E5; --muted: #94A49E;
+    --rule: #2A3632; --accent: #93A8FF; --accent-soft: #1D2646; --prot: #4FCB99; --prot-soft: #123022;
+    --vuln: #FF8063; --vuln-soft: #3B1A12; --impact: #EFB44E; --impact-soft: #33270F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1412; --grid: rgba(200, 230, 215, 0.045); --panel: #151D1A; --ink: #E1E9E5; --muted: #94A49E;
+  --rule: #2A3632; --accent: #93A8FF; --accent-soft: #1D2646; --prot: #4FCB99; --prot-soft: #123022;
+  --vuln: #FF8063; --vuln-soft: #3B1A12; --impact: #EFB44E; --impact-soft: #33270F;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+}
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap {
+  max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+  display: grid; gap: 36px;
+}
+.ico { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ico .fill { fill: currentColor; stroke: none; }
+.ic { display: inline-grid; place-items: center; flex: none; }
+.ic svg { width: 18px; height: 18px; }
+
+.mast { display: grid; gap: 10px; max-width: 76ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-stretch: 78%; font-weight: 800; margin: 0; font-size: clamp(34px, 6vw, 56px); line-height: 0.98; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); font-size: 16px; }
+.sibs { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13.5px; }
+.sec-k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+h2.sec { margin: 0 0 4px; font-family: var(--display); font-stretch: 80%; font-weight: 750; font-size: 26px; line-height: 1.1; }
+.sec-p { margin: 0; color: var(--muted); font-size: 14.5px; max-width: 76ch; }
+
+/* Cascade map */
+.cascade { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-top: 14px; align-items: start; }
+.gwrap { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; overflow-x: auto; }
+.gwrap svg { display: block; width: 100%; min-width: 820px; height: auto; }
+.g-row { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; fill: var(--muted); }
+.g-e { fill: none; stroke: var(--rule); stroke-width: 1.3; }
+.g-e.up { stroke: var(--accent); stroke-width: 2.2; }
+.g-e.down { stroke: var(--impact); stroke-width: 2.2; stroke-dasharray: 7 4; animation: flow 1s linear infinite; }
+.g-e.faint { opacity: 0.35; }
+.mk { fill: var(--rule); } .mk-up { fill: var(--accent); } .mk-down { fill: var(--impact); }
+@keyframes flow { to { stroke-dashoffset: -11; } }
+.gn { cursor: pointer; }
+.gn:focus { outline: none; }
+.gn rect { fill: var(--panel); stroke: var(--ink); stroke-width: 1.3; transition: opacity 0.2s; }
+.gn .ico { color: var(--ink); stroke-width: 2.4; }
+.gn text { font-family: var(--body); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+.gn .hop { font-family: var(--mono); font-size: 10px; font-weight: 500; }
+.gn:hover rect, .gn:focus-visible rect { stroke: var(--accent); stroke-width: 2.2; }
+.gn.sel rect { fill: var(--accent); stroke: var(--accent); }
+.gn.sel text, .gn.sel .ico { fill: var(--panel); color: var(--panel); }
+.gn.up rect { fill: var(--accent-soft); stroke: var(--accent); }
+.gn.d1 rect { fill: var(--impact-soft); stroke: var(--impact); stroke-width: 2; }
+.gn.d2 rect { fill: var(--impact-soft); stroke: var(--impact); stroke-dasharray: 4 3; }
+.gn.dim { opacity: 0.38; }
+.gn g.hopb rect { fill: var(--impact); stroke: none; stroke-dasharray: none; }
+.gn g.hopb text { fill: var(--panel); }
+
+.readout { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.ro-h { display: flex; gap: 10px; align-items: center; }
+.ro-h .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); color: var(--panel); }
+.ro-h .ic svg { width: 22px; height: 22px; }
+.ro-h b { font-family: var(--display); font-stretch: 82%; font-weight: 800; font-size: 22px; line-height: 1.05; }
+.ro-big { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 40px; line-height: 1; color: var(--impact); font-variant-numeric: tabular-nums; }
+.ro-cap { font-size: 13.5px; color: var(--muted); margin: 0; }
+.ro-k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.ro-k.up { color: var(--accent); } .ro-k.down { color: var(--impact); }
+.pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 9px 2px 5px; font-size: 12.5px;
+  border: 1px solid var(--rule); background: transparent; cursor: pointer; text-decoration: none; color: var(--ink);
+}
+.pill .ic svg { width: 13px; height: 13px; }
+.pill.up { border-color: var(--accent); color: var(--accent); }
+.pill.d1 { background: var(--impact-soft); border-color: var(--impact); color: var(--impact); }
+.pill.d2 { border-color: var(--impact); border-style: dashed; color: var(--impact); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 10px; border-radius: 3px; border: 1.5px solid; display: inline-block; }
+.sw.sel { background: var(--accent); border-color: var(--accent); }
+.sw.up { background: var(--accent-soft); border-color: var(--accent); }
+.sw.d1 { background: var(--impact-soft); border-color: var(--impact); }
+.sw.d2 { background: var(--impact-soft); border-color: var(--impact); border-style: dashed; }
+.readmore { font-weight: 600; font-size: 14px; }
+
+/* Index */
+.index { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+.ix-g h3 { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ix-g ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ix-g a { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); padding: 6px 8px; border-radius: 7px; border: 1px solid var(--rule); background: var(--panel); font-size: 14px; font-weight: 500; }
+.ix-g a .ic { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.ix-g a:hover { border-color: var(--accent); }
+
+/* Sector sections */
+.sector { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 24px; display: grid; gap: 20px; scroll-margin-top: 16px; }
+.s-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+.s-head .ic { width: 54px; height: 54px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); }
+.s-head .ic svg { width: 30px; height: 30px; }
+.s-head h2 { margin: 2px 0 6px; font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 32px; line-height: 1.05; text-wrap: balance; }
+.s-sum { margin: 0; font-size: 15.5px; max-width: 80ch; }
+.quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+.quad h3, .s-foot h3 {
+  margin: 0 0 8px; font-family: var(--mono); font-size: 11.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+h3.uses { color: var(--accent); } h3.risks { color: var(--vuln); } h3.inc { color: var(--impact); } h3.def { color: var(--prot); }
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.items li { font-size: 14px; line-height: 1.45; padding-left: 12px; border-left: 2px solid var(--rule); display: grid; gap: 3px; }
+.items.uses li { border-left-color: var(--accent); }
+.items.risks li { border-left-color: var(--vuln); }
+.items.inc li { border-left-color: var(--impact); }
+.items.def li { border-left-color: var(--prot); }
+.items b { font-weight: 600; }
+.trow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font-family: var(--mono); font-size: 10.5px; padding: 0 6px; border-radius: 3px; border: 1px solid var(--rule); color: var(--muted); white-space: nowrap; }
+.tag.ai { background: var(--vuln-soft); border-color: var(--vuln); color: var(--vuln); }
+.tag.year { border-color: transparent; padding-left: 0; color: var(--ink); font-weight: 500; }
+.drvtag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10.5px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink); white-space: nowrap; }
+.drvtag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dc, var(--muted)); }
+.drvtag.ai { --dc: var(--vuln); } .drvtag.bad { --dc: var(--ink); } .drvtag.acc { --dc: var(--impact); } .drvtag.sys { --dc: var(--muted); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--prot); }
+.dot.est { background: var(--prot); }
+.dot.emg { background: linear-gradient(90deg, var(--prot) 50%, transparent 50%); }
+.dot.res { border-style: dashed; }
+.mat { display: inline-flex; align-items: center; gap: 5px; }
+.s-foot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 28px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.s-foot p { margin: 0; font-size: 14px; }
+.refs { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13.5px; }
+.toplink { font-size: 13px; justify-self: start; }
+
+.foot { padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 92ch; }
+.foot p { margin: 0; }
+
+/* Provenance: badges for our own content, as-of chip, inline sources */
+.asof { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--impact); background: var(--impact-soft); border-radius: 6px; padding: 4px 10px; justify-self: start; max-width: 100%; }
+.badgeline { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.7; }
+.ourtag { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10.5px; line-height: 1.5; letter-spacing: 0.02em; padding: 0 7px; border-radius: 999px; border: 1px dashed; vertical-align: middle; white-space: nowrap; font-weight: 500; text-transform: none; }
+.ourtag.chat { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.ourtag.idea { color: var(--impact); border-color: var(--impact); background: var(--impact-soft); }
+.src { font-family: var(--mono); font-size: 11px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.g-idea rect { fill: var(--impact-soft); stroke: var(--impact); stroke-width: 1; stroke-dasharray: 3 2; }
+.g-idea text { font-family: var(--mono); font-size: 10.5px; font-weight: 500; fill: var(--impact); }
+.mapnote { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* Expert views */
+.xp { list-style: none; margin: 14px 0 0; padding: 4px 20px; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; display: grid; max-width: 100ch; }
+.xp li { padding: 12px 0 12px 16px; border-bottom: 1px solid var(--rule); font-size: 14.5px; line-height: 1.5; position: relative; }
+.xp li::before { content: ""; position: absolute; left: 0; top: 20px; width: 7px; height: 7px; border-radius: 50%; background: var(--prot); }
+.xp li.qual::before { background: var(--impact); }
+.xp li:last-child { border-bottom: 0; }
+.xp-k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--impact); margin-right: 6px; }
+.xp-more { margin: 10px 0 0; font-size: 14px; }
+
+@media (max-width: 1000px) {
+  .cascade { grid-template-columns: minmax(0, 1fr); }
+  .index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .s-foot { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .quad { grid-template-columns: minmax(0, 1fr); }
+  .sector { padding: 16px; }
+  .xp { padding: 2px 14px; }
+  .index { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .g-e.down { animation: none; } }
+</style>
+<!-- haf-nav -->
+<style>
+.haf-bar { border-bottom: 1px solid var(--rule, var(--line, rgba(127,127,127,.3))); font: 500 12px/1.2 var(--mono, ui-monospace, Menlo, monospace); letter-spacing: .06em; text-transform: uppercase; }
+.haf-bar > div { max-width: var(--haf-w, 1240px); margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.haf-bar a { color: var(--muted, inherit); text-decoration: none; }
+.haf-bar a:hover { color: var(--ink, inherit); }
+</style>
+</head>
+<body>
+<!-- haf-nav -->
+<nav class="haf-bar" aria-label="Site" style="--haf-w:1240px"><div><a href="./">&larr; AI Safety index</a><a href="/">Human Autonomy Foundation</a></div></nav>
+
+
+<div class="wrap">
+  <header class="mast" id="top">
+    <div class="eyebrow">AI Safety Atlas set · v1 · Oct 2026</div>
+    <h1>Society & Critical Systems</h1>
+    <p class="lede">Seventeen sectors that keep daily life running, from the power grid to elections, plus two areas where AI already harms people directly: mental health and intimate-image abuse. For each one: how AI is used today, what could go wrong, real incidents, the defenses that exist, and who is responsible. The cascade map shows how a failure in one sector spreads to the others.</p>
+    <span class="asof">Reviewed against expert sources, 31 October 2026</span>
+    <p class="badgeline">Badges: <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> topics the editors chose to focus on · <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> our own framing or judgment, not from a published source. Everything else is drawn from cited sources. For the expert survey behind this page, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+    <div class="sibs" id="sibs"></div>
+  </header>
+
+  <section aria-labelledby="cas-h">
+    <div class="sec-k">Cascade map</div>
+    <h2 class="sec" id="cas-h">If this fails, what else goes down?</h2>
+    <p class="sec-p">Arrows run from a sector to the sectors that depend on it. Pick a sector to see what it needs and how far a failure would spread. The links are our own simplified judgment. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></p>
+    <div class="cascade">
+      <div>
+        <div class="gwrap" id="graph"></div>
+        <div class="legend" style="margin-top:8px">
+          <span><i class="sw sel"></i>Selected</span>
+          <span><i class="sw up"></i>It depends on</span>
+          <span><i class="sw d1"></i>Fails directly</span>
+          <span><i class="sw d2"></i>Fails in the cascade</span>
+        </div>
+        <p class="mapnote">Not on the map: <a href="#companions">Mental health &amp; AI companions</a> and <a href="#imagery">Intimate-image abuse &amp; child safety</a>. They are direct harms to people, not systems other sectors depend on.</p>
+      </div>
+      <aside class="readout" id="readout" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="ix-h">
+    <div class="sec-k">Sectors</div>
+    <h2 class="sec" id="ix-h">Jump to a sector</h2>
+    <div class="index" id="index"></div>
+  </section>
+
+  <div id="sectors" style="display:grid;gap:22px"></div>
+
+  <section aria-labelledby="xp-h">
+    <div class="sec-k">Expert views</div>
+    <h2 class="sec" id="xp-h">What the research says</h2>
+    <p class="sec-p">What regulators, researchers and official bodies have measured or concluded, sector by sector. Bullets marked “Qualifies this page” temper or contest something above.</p>
+    <ul class="xp">
+      <li class="qual"><span class="xp-k">Qualifies this page</span>Herd behavior in markets is not yet a measured harm: the FSB found “little empirical evidence” that AI makes markets move in lockstep, though it did measure growing reliance on a few cloud and AI providers (<a href="https://www.fsb.org/uploads/P101025.pdf" target="_blank" rel="noopener">FSB, Oct 2025</a>).</li>
+      <li>By late 2026 the Bank of England's sharper AI worry was money, not models: high AI-company valuations, about $450 billion of AI-related debt, and a July 2026 AI stock sell-off that leveraged investors made worse (<a href="https://www.bankofengland.co.uk/financial-policy-committee-record/2026/september-2026" target="_blank" rel="noopener">Bank of England FPC, Sept 2026</a>).</li>
+      <li>Data centers have already shaken the grid: in 2024 about 1,500 MW of data-center load dropped off at once, and in May 2026 the grid's reliability body issued its highest-level alert on the issue (<a href="https://nerc.com/pa/rrm/ea/Documents/Incident_Review_Large_Load_Loss.pdf" target="_blank" rel="noopener">NERC</a>; <a href="https://www.renewableenergyworld.com/power-grid/nerc-issues-level-3-alert-to-address-immediate-risks-data-center-loads-pose-to-the-grid/" target="_blank" rel="noopener">Renewable Energy World</a>).</li>
+      <li>AI-run hacking is no longer hypothetical: Anthropic reported a 2025 state-linked campaign in which AI did 80–90% of the work against about 30 organizations, though only a few break-ins succeeded (<a href="https://www.anthropic.com/news/disrupting-AI-espionage" target="_blank" rel="noopener">Anthropic, company report</a>).</li>
+      <li class="qual"><span class="xp-k">Qualifies this page</span>Researchers have not found AI deepfakes changing an election result, but they find them widespread and confusing: in Hungary's 2026 election, 37% of people who saw deepfake videos had been misled at some point, and the party that used them most still lost (<a href="https://cetas.turing.ac.uk/publications/ai-enabled-influence-operations-safeguarding-future-elections" target="_blank" rel="noopener">CETaS</a>; <a href="https://edmo.eu/blog/hungarys-2026-election-ai-driven-post-reality-campaigning-and-its-limits/" target="_blank" rel="noopener">EDMO</a>).</li>
+      <li class="qual"><span class="xp-k">Qualifies this page</span>Experts disagree about AI and jobs: Stanford finds employment of 22–25-year-olds in AI-exposed jobs 19% below trend, while Yale and the IMF find small or no effects, and none finds economy-wide job losses yet (<a href="https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/" target="_blank" rel="noopener">Stanford</a>; <a href="https://budgetlab.yale.edu/node/1495/pdf" target="_blank" rel="noopener">Yale Budget Lab</a>; <a href="https://www.policyedge.in/p/imf-ai-exposed-occupations-see-slower-hiring-but-demand-for-ai-skills-grows" target="_blank" rel="noopener">IMF, via Policy Edge</a>).</li>
+      <li>Chatbots and mental health is now a front-line harm: OpenAI estimates 0.15% of its weekly users show signs of suicidal planning, families are suing, the FTC is investigating, and California now requires suicide-response protocols (<a href="https://openai.com/index/strengthening-chatgpt-responses-in-sensitive-conversations/" target="_blank" rel="noopener">OpenAI</a>; <a href="https://www.ftc.gov/news-events/news/press-releases/2025/09/ftc-launches-inquiry-ai-chatbots-acting-companions" target="_blank" rel="noopener">FTC</a>).</li>
+      <li>AI-made child sexual abuse imagery has exploded: the Internet Watch Foundation found 3,443 such videos in 2025, up from 13 the year before, and the US began enforcing 48-hour takedowns of intimate images in May 2026 (<a href="https://www.iwf.org.uk/aireport" target="_blank" rel="noopener">IWF</a>; <a href="https://www.ftc.gov/news-events/news/press-releases/2026/05/ftc-begins-enforcing-take-it-down-act" target="_blank" rel="noopener">FTC</a>).</li>
+      <li>On the company's own data, fully driverless cars look safer than human drivers where they operate: Waymo reports 95% fewer serious-injury crashes over 271 million miles, while US regulators are still investigating crashes involving Tesla's supervised Full Self-Driving (<a href="https://waymo.com/safety/impact/" target="_blank" rel="noopener">Waymo</a>; <a href="https://motorillustrated.com/nhtsas-fsd-investigation-enters-recall-track-phase-covering-3-2-million-vehicles/178820/" target="_blank" rel="noopener">Motor Illustrated</a>).</li>
+      <li>The newest AI medical tools mostly sit outside device review: more than 1,600 AI devices are FDA-authorized but none is identified as using a large language model, and in a 2026 trial people using chatbots made no better health decisions (<a href="https://www.fda.gov/medical-devices/software-medical-device-samd/artificial-intelligence-enabled-medical-devices" target="_blank" rel="noopener">FDA</a>; <a href="https://oxfordbrc.nihr.ac.uk/study-warns-of-risks-in-ai-chatbots-giving-medical-advice/" target="_blank" rel="noopener">Oxford BRC</a>).</li>
+    </ul>
+    <p class="xp-more">For the full expert survey behind this page, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+  </section>
+
+  <footer class="foot">
+    <p>Incidents marked <span class="tag ai">AI involved</span> had AI systems at their center. Those marked <span class="tag">No AI</span> show the weak point AI could make worse: faster, cheaper or at larger scale. <span class="tag">Signal</span> marks statements and decisions that show where things are heading. Risks are tagged by who's driving them, using the four drivers from the AI Risk Landscape: <span class="drvtag bad">Bad actors</span> <span class="drvtag ai">The AI itself</span> <span class="drvtag acc">Accidents</span> <span class="drvtag sys">Nobody</span>. Defense maturity: established, emerging, research stage. Dependencies, driver tags and maturity ratings are our own simplified judgments as of October 2026. <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></p>
+    <p>Small “Source” links under an item point to the evidence for that line. Figures were checked against those sources on 31 October 2026; some come from news or trade reports of the original, and those are named as such.</p>
+    <p>Oversight lists name the main US bodies plus EU rules; most countries have their own equivalents.</p>
+    <p>This page was built by Claude, an AI model made by Anthropic. Anthropic appears on it twice: as the source of a report on an AI-run hacking campaign, and as a party to a 2026 dispute with the Pentagon. Both items stick to what the cited sources say.</p>
+  </footer>
+</div>
+
+<script>
+const ICONS = {
+  pylon: '<path d="M12 3L6.5 21M12 3l5.5 18M8.4 14.5h7.2M7.3 18h9.4M9.8 9h4.4M4 9h16"/>',
+  globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5z"/>',
+  satellite: '<rect x="10" y="9.5" width="4" height="5" rx="1"/><rect x="3" y="10" width="5" height="4"/><rect x="16" y="10" width="5" height="4"/><path d="M8 12h2M14 12h2M12 14.5v3M9.3 20.5a3.6 3.6 0 0 1 5.4 0"/>',
+  droplet: '<path d="M12 3.5c3.5 4.2 6 7.5 6 10.5a6 6 0 0 1-12 0c0-3 2.5-6.3 6-10.5z"/>',
+  car: '<path d="M4 15.5V12l2.2-5h11.6L20 12v3.5z"/><path d="M4 12h16"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/>',
+  card: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M6.5 15h4"/>',
+  factory: '<path d="M3 20.5V11l5 3v-3l5 3v-3l5 3V4.5h3v16z"/><path d="M6.5 17.5h2M11.5 17.5h2"/>',
+  wheat: '<path d="M12 21V8"/><path d="M12 8c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 8c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4zM12 13c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 13c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4zM12 18c-2.5 0-4-1.8-4-4 2.5 0 4 1.8 4 4zM12 18c2.5 0 4-1.8 4-4-2.5 0-4 1.8-4 4z"/>',
+  heart: '<path d="M12 20s-7.5-4.5-7.5-10A4.2 4.2 0 0 1 12 7.6 4.2 4.2 0 0 1 19.5 10c0 5.5-7.5 10-7.5 10z"/><path d="M7 12h2.5l1.2-2 2 4 1.3-2H17"/>',
+  siren: '<path d="M7 18v-5a5 5 0 0 1 10 0v5"/><path d="M5 18h14v2.5H5z"/><path d="M12 3v2M4.5 6l1.4 1.4M19.5 6l-1.4 1.4"/>',
+  shield: '<path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M8.5 12.5l3.5 2 3.5-2M8.5 9.5l3.5 2 3.5-2"/>',
+  ballot: '<rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M8 10V4h8v6"/><path d="M10 7l1.4 1.4L14 6"/><path d="M8 14.5h8"/>',
+  news: '<rect x="3.5" y="4.5" width="14" height="15" rx="1.5"/><path d="M17.5 8.5h3v9.5a1.5 1.5 0 0 1-3 0"/><path d="M7 8.5h7M7 12h7M7 15.5h4"/>',
+  scale: '<path d="M12 4v16M7.5 20h9M5 7h14"/><path d="M2.5 13a2.5 2.5 0 0 0 5 0L5 7zM16.5 13a2.5 2.5 0 0 0 5 0L19 7z"/>',
+  grad: '<path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4"/><path d="M21.5 9.5v5"/>',
+  briefcase: '<rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8.5 7.5V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5v2M3 12.5h18"/>',
+  robot: '<rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1.2"/><circle cx="9.3" cy="12.8" r="1.2"/><circle cx="14.7" cy="12.8" r="1.2"/><path d="M9.5 16.2h5"/>'
+};
+const ico = name => '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" class="ico">' + ICONS[name] + "</svg></span>";
+const MAT = { est: "Established", emg: "Emerging", res: "Research stage" };
+const GROUPS = [
+  { id: "found", name: "Foundations", row: 0 },
+  { id: "life", name: "Lifelines & flows", row: 1 },
+  { id: "serv", name: "Essential services", row: 2 },
+  { id: "soc", name: "Society", row: 3 }
+];
+
+// Badges for content that came from our conversations or is our own idea (see the masthead legend).
+const OURTAG = {
+  chat: '<span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span>',
+  idea: '<span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span>'
+};
+const lnk = s => '<a href="' + s[1] + '" target="_blank" rel="noopener">' + s[0] + "</a>";
+// Sources cited inline. [label, url]
+const SRC = {
+  fsb24: ["FSB, Nov 2024", "https://www.fsb.org/2024/11/the-financial-stability-implications-of-artificial-intelligence/"],
+  fsb25: ["FSB, Oct 2025", "https://www.fsb.org/uploads/P101025.pdf"],
+  boe25: ["Bank of England, Apr 2025", "https://www.bankofengland.co.uk/financial-stability-in-focus/2025/april-2025"],
+  boe26: ["Bank of England FPC, Sept 2026", "https://www.bankofengland.co.uk/financial-policy-committee-record/2026/september-2026"],
+  anthr: ["Anthropic, Nov 2025 (company report)", "https://www.anthropic.com/news/disrupting-AI-espionage"],
+  nerc25: ["NERC incident review, Jan 2025", "https://nerc.com/pa/rrm/ea/Documents/Incident_Review_Large_Load_Loss.pdf"],
+  nerc26: ["Renewable Energy World, May 2026", "https://www.renewableenergyworld.com/power-grid/nerc-issues-level-3-alert-to-address-immediate-risks-data-center-loads-pose-to-the-grid/"],
+  euomni: ["National Law Review, 2026", "https://natlawreview.com/article/eu-digital-omnibus-ai-enters-force"],
+  ftcpart: ["FTC staff report, Jan 2025", "https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-issues-staff-report-ai-partnerships-investments-study"],
+  cma: ["UK CMA, Jul 2025", "https://www.gov.uk/cma-cases/cloud-services-market-investigation"],
+  aws: ["ThousandEyes, Oct 2025", "https://www.thousandeyes.com/blog/aws-outage-analysis-october-20-2025"],
+  waymo: ["Waymo safety data", "https://waymo.com/safety/impact/"],
+  swissre: ["Swiss Re study, Dec 2024", "https://waymo.com/blog/2024/12/new-swiss-re-study-waymo"],
+  fsd: ["Motor Illustrated, Mar 2026", "https://motorillustrated.com/nhtsas-fsd-investigation-enters-recall-track-phase-covering-3-2-million-vehicles/178820/"],
+  cruise: ["Engadget, Nov 2024", "https://www.engadget.com/transportation/gms-cruise-will-pay-a-500000-fine-for-submitting-a-false-accident-report-133041789.html"],
+  who: ["WHO guidance, Jan 2024", "https://www.who.int/news/item/18-01-2024-who-releases-ai-ethics-and-governance-guidance-for-large-multi-modal-models"],
+  fda: ["FDA device list", "https://www.fda.gov/medical-devices/software-medical-device-samd/artificial-intelligence-enabled-medical-devices"],
+  mesko: ["Meskó count, Sept 2026", "https://www.onedayadvisor.com/2026/09/AI-medical-devices-FDA.html"],
+  rct: ["Nature Medicine study via Oxford BRC, Feb 2026", "https://oxfordbrc.nihr.ac.uk/study-warns-of-risks-in-ai-chatbots-giving-medical-advice/"],
+  change: ["Healthcare IT News", "https://healthcareitnews.com/news/new-numbers-change-healthcare-data-breach-193-million-affected"],
+  cetas: ["CETaS, Alan Turing Institute", "https://cetas.turing.ac.uk/publications/ai-enabled-influence-operations-safeguarding-future-elections"],
+  edmo: ["EDMO, Apr 2026", "https://edmo.eu/blog/hungarys-2026-election-ai-driven-post-reality-campaigning-and-its-limits/"],
+  ireland: ["Letterkenny Live", "https://www.letterkennylive.ie/news/national-news/1925486/connolly-condemns-deepfake-video-which-suggests-she-has-quit-presidential-race.html"],
+  newsguard: ["NewsGuard, Jun 2026", "https://www.newsguardtech.com/special-reports/ai-tracking-center/"],
+  wh24: ["White House readout, Nov 2024", "https://bidenwhitehouse.archives.gov/briefing-room/statements-releases/2024/11/16/readout-of-president-joe-bidens-meeting-with-president-xi-jinping-of-the-peoples-republic-of-china-3/"],
+  npr: ["NPR, Feb 2026", "https://www.npr.org/g-s1-112713"],
+  aclu: ["ACLU, Apr 2026", "https://aclu.org/news/privacy-technology/more-than-a-dozen-wrongful-arrests-due-to-police-reliance-on-facial-recognition-technology"],
+  canaries: ["Stanford Digital Economy Lab, Aug 2026", "https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/"],
+  yale: ["Yale Budget Lab, May 2026", "https://budgetlab.yale.edu/node/1495/pdf"],
+  imfjobs: ["IMF study via Policy Edge, Oct 2026", "https://www.policyedge.in/p/imf-ai-exposed-occupations-see-slower-hiring-but-demand-for-ai-skills-grows"],
+  openai: ["OpenAI, Oct 2025", "https://openai.com/index/strengthening-chatgpt-responses-in-sensitive-conversations/"],
+  ftc6b: ["FTC, Sept 2025", "https://www.ftc.gov/news-events/news/press-releases/2025/09/ftc-launches-inquiry-ai-chatbots-acting-companions"],
+  sb243: ["Perkins Coie on SB 243", "https://perkinscoie.com/insights/update/california-companion-chatbot-law-now-effect"],
+  apa: ["APA advisory, Jun 2025", "https://www.apa.org/topics/artificial-intelligence-machine-learning/health-advisory-ai-adolescent-well-being"],
+  csm: ["Common Sense Media, Jul 2025", "https://www.commonsensemedia.org/research/talk-trust-and-trade-offs-how-and-why-teens-use-ai-companions"],
+  aei: ["AEI, Feb 2026", "https://ctse.aei.org/suicides-settlements-and-unresolved-chatbot-issues-a-long-litigation-road-lies-ahead/"],
+  iwf: ["IWF AI report, 2026", "https://www.iwf.org.uk/aireport"],
+  iwfh1: ["Resultsense, citing the Guardian, Oct 2026", "https://resultsense.com/news/2026-10-05-iwf-ai-child-abuse-images-2026/"],
+  grok: ["The Register, Jan 2026", "https://www.theregister.com/2026/01/12/xai_grok_uk_regulation/"],
+  tida: ["FTC, May 2026", "https://www.ftc.gov/news-events/news/press-releases/2026/05/ftc-begins-enforcing-take-it-down-act"],
+  detect: ["Liang et al., 2023", "https://arxiv.org/abs/2304.02819v1"],
+  vandy: ["Vanderbilt, Aug 2023", "https://www.vanderbilt.edu/brightspace/2023/08/16/guidance-on-ai-detection-and-why-were-disabling-turnitins-ai-detector/"]
+};
+
+// Each sector is self-contained so it can later become its own page.
+// uses: [title, text, opt?]; risks: [title, text, type, opt?]; inc: [year, title, text, ai?, opt?]; def: [title, text, maturity, opt?]
+// opt = { tag: "chat" | "idea", src: [SRC...] }. A sector with map: false is left off the cascade map.
+const S = [
+  { id: "power", name: "Power grid & energy", short: "Power & energy", icon: "pylon", group: "found", needs: ["telecom", "space"],
+    sum: "Almost everything else runs on electricity, so the grid sits at the bottom of every cascade. AI is arriving in two ways: as a tool for running the grid, and as a fast-growing source of demand from data centers.",
+    uses: [["Forecasting", "Predicting demand and wind and solar output hours or days ahead."], ["Predictive maintenance", "Spotting failing transformers, lines and turbines before they break."], ["Grid operations", "Operators are testing AI to help balance supply and demand in real time."], ["Data centers", "AI training and inference are now a major new source of electricity demand."]],
+    risks: [["Faster attacks on control systems", "AI lowers the skill needed to find and exploit weaknesses in grid software.", "Misuse"], ["Errors at machine speed", "An automated dispatch mistake can spread across a synchronized grid in seconds.", "Accident"], ["Demand outpacing supply", "Rapid data-center growth can strain capacity and raise blackout risk. Large data-center loads can also switch off all at once and shake the grid.", "Systemic", { src: [SRC.nerc25, SRC.nerc26] }], ["Shared vendors", "Many utilities run the same software, so one flaw can hit them all.", "Systemic"]],
+    inc: [["2015", "Ukraine blackout", "Hackers cut power to about 225,000 customers; operators restored it within hours by switching to manual control.", false],
+      ["2021", "Colonial Pipeline", "A ransomware attack shut the largest US fuel pipeline for days, causing fuel shortages along the East Coast.", false],
+      ["2024", "Volt Typhoon", "US agencies warned that Chinese state hackers had pre-positioned inside US utilities, apparently to enable disruption in a crisis.", false],
+      ["2024", "Data centers drop off at once", "A line fault made about 1,500 MW of data-center load leave the grid in seconds and switch to backup power. The grid regulator NERC warned the risk “could quickly increase”.", false, { src: [SRC.nerc25] }],
+      ["2026", "Top-level grid alert", "NERC issued a Level 3 alert, its highest, on sudden power swings from data centers and crypto miners, and told grid operators to act.", "sig", { src: [SRC.nerc26] }]],
+    def: [["Mandatory grid security standards", "NERC CIP rules for the North American bulk power system.", "est"], ["Manual operation and islanding", "The ability to run parts of the grid by hand or cut them off to stop a cascade.", "est"], ["Engineering out the worst outcomes", "Idaho National Laboratory's CCE method: physical safeguards software can't override.", "est"], ["Rules for connecting big data-center loads", "NERC's 2026 alert asks grid operators to study these loads and set rules for bringing them online.", "emg", { src: [SRC.nerc26] }], ["AI anomaly detection in control networks", "Spotting unusual commands and traffic in operational technology.", "emg"], ["Limits on AI autonomy in grid control", "Rules for what AI may decide without an operator.", "res"]],
+    oversight: "US: FERC, NERC, Department of Energy, CISA. EU: NIS2 cybersecurity rules; the AI Act lists AI in critical infrastructure as high-risk, but those duties now apply only from December 2027 (" + lnk(SRC.euomni) + ").",
+    open: "How much real-time control should AI have, and how do operators keep the skills to take over?",
+    refs: [["CISA advisory on Volt Typhoon (2024)", "https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-038a"], ["Consequence-driven Cyber-informed Engineering (INL)", "https://www.inl.gov/cce/"]] },
+
+  { id: "telecom", name: "Telecom & internet", short: "Telecom & internet", icon: "globe", group: "found", needs: ["power"],
+    sum: "Phone networks, the internet and cloud platforms carry the commands and data every other sector relies on. A handful of carriers and cloud providers make it a small number of very large targets.",
+    uses: [["Network operations", "AI tunes traffic, predicts outages and automates configuration changes."], ["Fraud and spam detection", "Filtering robocalls, scam texts and SIM-swap fraud."], ["Customer service", "Chatbots and voice agents handle support calls."]],
+    risks: [["Voice cloning", "Cloned voices defeat voice authentication and make scam calls convincing.", "Misuse"], ["One bad change everywhere", "Automated network management can push a faulty change across a whole network at once.", "Accident"], ["Concentration", "A few cloud and network providers carry most traffic. The top three cloud firms have about three-quarters of cloud use, and they also invest in the leading AI labs.", "Systemic", { src: [SRC.fsb25, SRC.ftcpart] }]],
+    inc: [["2024", "Salt Typhoon", "Chinese state hackers breached several major US telecom carriers, including systems used for court-authorized wiretaps.", false],
+      ["2024", "CrowdStrike update", "One faulty security update crashed about 8.5 million Windows computers, grounding flights and disrupting hospitals and some banking and payment services.", false, { src: [SRC.boe25] }],
+      ["2024", "Deepfake robocall", "A cloned voice of President Biden told New Hampshire voters to stay home. The FCC then ruled AI voices in robocalls illegal and fined the consultant behind it $6 million.", true],
+      ["2025", "AWS outage", "A software fault in one Amazon Web Services region took down Slack, Snapchat and many other services for over 15 hours.", false, { src: [SRC.aws] }]],
+    def: [["Caller authentication", "STIR/SHAKEN signatures that show whether a call's number is genuine.", "est"], ["Staged rollouts", "Pushing updates to a small share of systems first.", "est"], ["Rules on AI voices in calls", "The FCC's 2024 ruling under the Telephone Consumer Protection Act.", "est"], ["Provider diversity", "Avoiding dependence on a single cloud or carrier.", "emg"], ["Competition scrutiny of cloud and AI", "The FTC studied cloud–AI partnerships, and the UK competition regulator recommended investigating Microsoft and AWS in cloud.", "emg", { src: [SRC.ftcpart, SRC.cma] }]],
+    oversight: "US: FCC, CISA, FTC. EU: NIS2 and the European Electronic Communications Code. UK: the Competition and Markets Authority for cloud.",
+    open: "How to keep critical services running when a major cloud provider or carrier fails?",
+    refs: [] },
+
+  { id: "space", name: "Space & navigation", short: "Space & navigation", icon: "satellite", group: "found", needs: ["power"],
+    sum: "Satellites provide navigation, timing and communications. GPS timing quietly synchronizes power grids, phone networks and financial trading, so trouble in orbit or on the signal reaches far beyond maps.",
+    uses: [["Satellite operations", "Automated station-keeping and collision avoidance for large constellations."], ["Earth observation", "AI reads satellite imagery for agriculture, disasters and defense."], ["Autonomous navigation", "Drones, ships and vehicles rely on satellite positioning."]],
+    risks: [["Jamming and spoofing", "False or blocked signals can mislead autonomous vehicles, ships and drones.", "Misuse"], ["Hidden timing dependence", "Grids, telecom and finance all lean on GPS time.", "Systemic"], ["Crowded orbits", "Thousands of autonomously managed satellites raise collision and debris risk.", "Accident", { tag: "idea" }]],
+    inc: [["2022", "Viasat hack", "At the start of Russia's invasion of Ukraine, an attack on a satellite network knocked out modems across Europe, including remote monitoring of about 5,800 German wind turbines.", false],
+      ["2023–24", "GPS jamming", "Widespread jamming and spoofing around the Baltic and the Middle East disrupted aircraft navigation.", false]],
+    def: [["Backup timing sources", "Atomic clocks, fiber-delivered time and terrestrial systems like eLoran.", "emg"], ["Spoofing-resistant receivers", "Detecting fake satellite signals.", "emg"], ["Space traffic coordination", "Sharing orbit data to avoid collisions.", "emg"]],
+    oversight: "US: FAA, FCC, Space Force, Department of Transportation. International: ITU and UN space treaties.",
+    open: "Should autonomous vehicles and drones be required to detect spoofed positions?",
+    refs: [["Viasat: KA-SAT network cyber attack overview (2022)", "https://news.viasat.com/blog/corporate/ka-sat-network-cyber-attack-overview"]] },
+
+  { id: "water", name: "Water & wastewater", short: "Water", icon: "droplet", group: "life", needs: ["power", "telecom"],
+    sum: "Thousands of small water utilities, many with no security staff, run treatment plants with internet-connected controllers. Mistakes here go straight into what people drink.",
+    uses: [["Leak detection", "Finding losses in pipe networks from sensor data."], ["Treatment optimization", "Adjusting chemicals and energy use."], ["Demand forecasting", "Planning supply for heat waves and droughts."]],
+    risks: [["Easy targets", "AI lowers the skill needed to attack exposed controllers at small utilities.", "Misuse"], ["Chemical dosing errors", "Automated control mistakes affect public health directly.", "Accident"], ["Power dependence", "Pumps and treatment stop when the power does.", "Systemic"]],
+    inc: [["2023", "Aliquippa, Pennsylvania", "Iran-linked hackers took over an internet-facing controller at a water authority's booster station.", false],
+      ["2024", "Arkansas City, Kansas", "A cyberattack forced the city's water treatment plant to switch to manual operation.", false]],
+    def: [["Manual operation", "Staff able to run treatment by hand.", "est"], ["Hard limits on dosing", "Physical or hardware limits on chemical levels.", "est"], ["Getting controllers off the open internet", "Plus free scanning and guidance from CISA and EPA.", "emg"]],
+    oversight: "US: EPA, CISA, state regulators. EU: Drinking Water Directive and NIS2.",
+    open: "How do small utilities afford security when AI makes attacks cheaper?",
+    refs: [["CISA advisory on Iran-linked attacks on water-sector controllers (2023)", "https://cisa.gov/news-events/cybersecurity-advisories/aa23-335a"]] },
+
+  { id: "transport", name: "Transportation", short: "Transportation", icon: "car", group: "life", needs: ["power", "telecom", "space"],
+    sum: "Driverless cars, smart traffic systems, aviation scheduling and automated ports put AI directly in control of moving vehicles and goods.",
+    uses: [["Driver assistance and robotaxis", "From lane-keeping to fully driverless services in some cities."], ["Traffic management", "Adaptive signals and congestion prediction."], ["Aviation and logistics", "Maintenance prediction, scheduling and port automation."]],
+    risks: [["Rare-situation failures", "Autonomous systems can fail in conditions they rarely saw in training.", "Accident"], ["Fleet-wide updates", "One software change reaches every vehicle at once.", "Systemic"], ["Over-reliance", "Drivers and pilots lose skills or attention when automation does most of the work.", "Accident"]],
+    inc: [["2023", "Cruise robotaxi", "A Cruise car dragged a pedestrian after a collision. California suspended its driverless permits, and GM later shut down the robotaxi business. Cruise also paid a $1.5 million federal penalty, and $500,000 more over a crash report that left out the dragging.", true, { src: [SRC.cruise] }],
+      ["2021–26", "Driver-assistance probes", "US regulators opened investigations and recalls tied to crashes involving Tesla's Autopilot and Full Self-Driving. In March 2026 NHTSA moved to a deeper engineering analysis of about 3.2 million Teslas, over whether Full Self-Driving detects poor visibility. It cites nine crashes, one fatal.", true, { tag: "chat", src: [SRC.fsd] }],
+      ["2024", "Flights grounded", "The CrowdStrike software failure grounded thousands of flights worldwide.", false],
+      ["2024–26", "Robotaxi safety data", "Waymo reports 95% fewer serious-injury crashes than human drivers over 271 million driverless miles to June 2026. An insurer's study found 92% fewer injury claims. These are company-backed data; they exclude freeways and are too few miles to show an effect on deaths.", true, { src: [SRC.waymo, SRC.swissre] }]],
+    def: [["Mandatory crash reporting", "NHTSA's Standing General Order for automated driving systems.", "est"], ["Permits for driverless operation", "State-level approval, testing and deployment rules.", "est"], ["Safety cases", "Structured, evidence-backed safety arguments such as UL 4600.", "emg"], ["Minimal-risk maneuvers", "Vehicles that pull over safely when they can't cope.", "emg"]],
+    oversight: "US: NHTSA, FAA, FRA, state DMVs. EU and UN: type approval and UN Regulation 157.",
+    open: "How safe is safe enough to remove the human driver, and who proves it?",
+    refs: [["NHTSA Standing General Order on crash reporting", "https://www.nhtsa.gov/laws-regulations/standing-general-order-crash-reporting"]] },
+
+  { id: "finance", name: "Finance & payments", short: "Finance & payments", icon: "card", group: "life", needs: ["power", "telecom", "space"],
+    sum: "Banks, markets and payment networks were early adopters of automated decision-making. AI now scores credit, flags fraud, trades and talks to customers, and fraudsters use it too. Regulators say most AI risks to the financial system are still potential. What they have measured is growing reliance on a few cloud and AI providers.",
+    uses: [["Fraud and money-laundering detection", "Flagging unusual transactions in real time."], ["Credit decisions", "Scoring loan and card applications."], ["Trading", "Algorithmic and AI-driven strategies. Fully autonomous AI trading is not yet in wide use, the Bank of England says.", { src: [SRC.boe25] }], ["Customer service", "Chatbots and voice agents."]],
+    risks: [["Deepfake fraud", "Cloned voices and faces authorize payments.", "Misuse", { src: [SRC.fsb24] }], ["Herd behavior (not yet observed)", "Many firms using similar models could all sell at once. The FSB found little evidence of this so far.", "Systemic", { src: [SRC.fsb25, SRC.boe25] }], ["Few shared providers", "Banks rely more and more on the same few cloud and AI providers, so one outage or flaw could hit many at once.", "Systemic", { src: [SRC.fsb25, SRC.boe25] }], ["An AI market bubble", "High AI-company valuations and about $450 billion of AI-related debt could amplify losses if prices fall, the Bank of England warns.", "Systemic", { src: [SRC.boe26] }], ["Unexplained decisions", "Opaque credit models can discriminate without anyone noticing.", "Accident"], ["Agents with money", "AI agents with payment access can be tricked into sending funds.", "Misuse"], ["Agents gaming their goals", "Trading or treasury agents can hit their targets in unintended ways, such as exploiting loopholes or moving prices. Regulators flag that more autonomous models “could take unexpected actions”.", "AI", { src: [SRC.fsb24, SRC.boe26] }]],
+    inc: [["2010", "Flash Crash", "Automated trading helped drive US stocks down nearly 1,000 points in minutes before they recovered.", false],
+      ["2012", "Knight Capital", "A faulty software deployment lost the firm about $440 million in 45 minutes.", false],
+      ["2024", "Arup deepfake", "An employee transferred about $25 million after a video call with deepfaked colleagues.", true],
+      ["2025", "AI-run hacking campaign", "Anthropic reported that a Chinese state-linked group used its AI to attack about 30 organizations, including financial firms. AI did 80–90% of the work; a few break-ins succeeded.", true, { src: [SRC.anthr] }],
+      ["2026", "AI stock sell-off", "AI-company shares fell sharply in July. The Bank of England said leveraged investors made the moves bigger, but core markets held.", "sig", { src: [SRC.boe26] }]],
+    def: [["Circuit breakers", "Automatic trading halts when prices move too fast.", "est"], ["Model risk management", "Supervisory rules for validating models, such as the Federal Reserve's SR 11-7.", "est"], ["Fair lending law", "Requirements to explain credit denials.", "est"], ["Spending limits for AI agents", "Caps and approvals on payments agents can make.", "res"]],
+    oversight: "US: SEC, CFTC, Federal Reserve, OCC, CFPB. EU: the AI Act lists credit scoring as high-risk; those duties apply from December 2027 (" + lnk(SRC.euomni) + "). International: Financial Stability Board.",
+    open: "Could widespread use of similar AI models make markets more fragile?",
+    refs: [["Federal Reserve SR 11-7: Guidance on model risk management", "https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm"], ["FSB: The financial stability implications of AI (2024)", "https://www.fsb.org/2024/11/the-financial-stability-implications-of-artificial-intelligence/"]] },
+
+  { id: "supply", name: "Manufacturing & supply chains", short: "Supply chains", icon: "factory", group: "life", needs: ["power", "transport", "telecom", "finance"],
+    sum: "Factories and supply chains turn plans into physical goods, including the chips AI itself runs on. Decades of optimization removed slack, so disruptions travel fast.",
+    uses: [["Industrial robots", "Assembly, welding, picking and packing."], ["Quality inspection", "Computer vision catching defects."], ["Planning", "Demand forecasting and logistics optimization."]],
+    risks: [["Chip concentration", "The most advanced AI chips come from very few factories, mostly in Taiwan.", "Systemic"], ["No slack", "Just-in-time systems tuned by AI leave little buffer.", "Systemic"], ["Physical robots", "Errors or attacks on robots cause physical harm.", "Accident"]],
+    inc: [["2021", "Chip shortage", "A global semiconductor shortage idled car factories for months.", false],
+      ["2025", "AI-run hacking campaign", "Anthropic reported that a Chinese state-linked group used its AI against about 30 targets, including chemical manufacturers. AI did 80–90% of the work; a few break-ins succeeded.", true, { src: [SRC.anthr] }]],
+    def: [["Robot safety standards", "Guarding, emergency stops and standards for industrial robots.", "est"], ["Buffer inventory", "Holding reserves of critical parts.", "est"], ["Diversifying chip production", "New factories in more countries, backed by laws like the US CHIPS Act.", "emg"]],
+    oversight: "US: OSHA, Department of Commerce (including export controls on AI chips). EU: Machinery Regulation.",
+    open: "How much efficiency should be traded for resilience?",
+    refs: [] },
+
+  { id: "food", name: "Food & agriculture", short: "Food & farming", icon: "wheat", group: "serv", needs: ["water", "transport", "supply", "power"],
+    sum: "Farming is increasingly automated and connected, and food processing is concentrated in a few large companies. A disruption can reach supermarket shelves within days.",
+    uses: [["Precision agriculture", "Targeted watering, fertilizer and spraying."], ["Autonomous equipment", "Self-driving tractors and harvesters."], ["Crop and livestock monitoring", "Spotting disease and pests early."]],
+    risks: [["Remotely disabled equipment", "Connected machinery can be shut off or hijacked from afar.", "Misuse"], ["Concentration", "A few processors handle most meat and grain.", "Systemic"], ["Monocultures", "Optimizing everyone toward the same crops and methods reduces resilience.", "Systemic"]],
+    inc: [["2021", "JBS ransomware", "An attack halted meat plants run by the world's largest meat processor, which paid $11 million.", false],
+      ["2022", "Bricked tractors", "Farm equipment looted from a dealership in occupied Ukraine was reportedly disabled remotely by the manufacturer.", false]],
+    def: [["Food safety systems", "Inspection and traceability rules.", "est"], ["Manual override and right to repair", "Farmers able to run and fix equipment without the vendor.", "emg"], ["Supply diversification", "More processors and regional supply.", "emg"]],
+    oversight: "US: USDA, FDA. EU: European Food Safety Authority and NIS2.",
+    open: "Who should control the off switch on connected farm machinery?",
+    refs: [["IndustryWeek: JBS says it paid $11 million in ransomware attack (2021)", "https://www.industryweek.com/technology-and-iiot/article/21166663/meatpacking-giant-jbs-says-paid-11-million-to-hackers-in-ransomware-attack"]] },
+
+  { id: "health", name: "Healthcare & public health", short: "Healthcare", icon: "heart", group: "serv", needs: ["power", "water", "telecom", "supply", "finance"],
+    sum: "AI already reads scans, drafts clinical notes and helps decide insurance claims. Errors affect patients directly, and hospitals depend on almost every other sector to stay open.",
+    uses: [["Medical imaging", "Flagging findings on X-rays, CT scans and mammograms."], ["Clinical documentation", "Ambient scribes that write up appointments."], ["Triage and prediction", "Early-warning scores for conditions like sepsis."], ["Claims and coverage", "Automated review of insurance claims."], ["Outbreak surveillance", "Spotting unusual patterns of illness early."], ["Health chatbots", "Patients and clinicians ask general chatbots for medical advice. These sit mostly outside medical-device review."]],
+    risks: [["Confident errors", "Wrong answers delivered fluently can mislead clinicians and patients, who may trust them too much.", "Accident", { src: [SRC.who] }], ["Uneven performance", "Models can work worse for groups underrepresented in training data.", "Accident", { src: [SRC.who] }], ["Automated denials", "Algorithms can cut care at scale.", "Systemic"], ["Ransomware", "Attacks on shared health IT shut down care and payments.", "Misuse"]],
+    inc: [["2021", "Sepsis model", "An outside study found a widely used sepsis prediction model missed about two-thirds of sepsis cases.", true],
+      ["2023", "Care-denial lawsuit", "A lawsuit alleged an insurer used an algorithm to cut off post-hospital care for elderly patients.", true],
+      ["2024", "Change Healthcare", "Ransomware at a major claims processor disrupted pharmacy and billing nationwide and exposed data of about 193 million people, by UnitedHealth's 2025 count.", false, { src: [SRC.change] }],
+      ["2026", "Chatbot advice trial", "In a randomized study of about 1,300 people, those using AI chatbots made no better medical decisions than those using usual methods. Models that scored well on tests faltered with real people.", true, { src: [SRC.rct] }]],
+    def: [["FDA review of AI medical devices", "More than 1,600 AI-enabled devices are on FDA's list (Sept 2026), about three-quarters in radiology. None is yet identified as using a large language model.", "est", { src: [SRC.fda, SRC.mesko] }], ["Clinician in the loop", "A professional reviews AI output before it affects care.", "est"], ["Health privacy law", "HIPAA in the US; GDPR in the EU.", "est"], ["Monitoring after deployment", "Tracking real-world accuracy over time.", "emg"], ["Limits on algorithm-only denials", "State laws requiring a clinician to decide.", "emg"]],
+    oversight: "US: FDA, HHS, CMS, state regulators. EU: Medical Device Regulation plus the AI Act, whose high-risk duties for AI in medical devices apply from August 2028 (" + lnk(SRC.euomni) + "). International: WHO guidance on large AI models.",
+    open: "How do you keep checking that a medical AI still works after it's deployed?",
+    refs: [] },
+
+  { id: "emergency", name: "Emergency services", short: "Emergency services", icon: "siren", group: "serv", needs: ["telecom", "power", "transport", "health"],
+    sum: "911 centers, firefighters and disaster agencies need communications that never fail and information they can trust, especially in a crisis when rumors spread fastest.",
+    uses: [["Call triage and translation", "Helping dispatchers prioritize and understand callers."], ["Disaster mapping", "Damage assessment from satellite and drone imagery."], ["Wildfire detection", "AI watching camera networks for smoke."]],
+    risks: [["AI-voiced hoax calls", "Cloned voices make swatting and fake emergencies more convincing.", "Misuse"], ["Fake disaster content", "Synthetic images and rumors confuse response.", "Misuse"], ["Telecom outages", "When phone networks fail, so does 911.", "Systemic"]],
+    inc: [["2024", "AT&T outage", "A network outage blocked more than 92 million calls, including over 25,000 attempts to reach 911, the FCC found.", false],
+      ["2024", "Hurricane fakes", "AI-generated images circulated widely during Hurricane Helene, adding confusion to the response.", true]],
+    def: [["Redundant 911 networks", "Next Generation 911 with backup routing.", "emg"], ["Call-back verification", "Confirming reports before sending resources.", "est"], ["Official rumor control", "Agency pages that debunk false claims during disasters.", "est"]],
+    oversight: "US: FCC, FEMA, state 911 authorities.",
+    open: "How do responders verify information when fakes arrive faster than facts?",
+    refs: [["Broadband Breakfast: February AT&T outage blocked 92 million calls, FCC says (2024)", "https://broadbandbreakfast.com/february-at-t-outage-blocked-92-million-calls-fcc-says/"]] },
+
+  { id: "defense", name: "Defense & nuclear command", short: "Defense & nuclear", icon: "shield", group: "serv", needs: ["power", "telecom", "space", "supply", "robots"],
+    sum: "Militaries use AI for intelligence, targeting, drones and cyber operations. Speed is the advantage and also the danger: decisions that once took hours can happen in seconds.",
+    uses: [["Intelligence analysis", "Sorting imagery, signals and reports."], ["Targeting support", "Recommending targets for human approval."], ["Autonomous drones", "Navigation and targeting without a pilot."], ["Cyber operations", "Finding and exploiting vulnerabilities."]],
+    risks: [["Squeezed human judgment", "Pressure for speed can turn human approval into a rubber stamp.", "Accident"], ["Escalation", "AI-driven cyberattacks or misread signals could escalate a crisis.", "Systemic"], ["Arms race", "Competition pushes deployment ahead of testing.", "Systemic"], ["Autonomy beyond intent", "Autonomous weapons or cyber agents acting outside what commanders intended, faster than people can step in.", "AI", { tag: "idea" }]],
+    inc: [["2023–25", "Autonomous drones", "Drones with autonomous navigation and targeting have been widely reported in the war in Ukraine.", true],
+      ["2024", "Target generation", "Investigative reporting described AI systems used to generate targets in Gaza; the Israeli military disputed key parts of the account.", true],
+      ["2024", "Human control of nuclear weapons", "US and Chinese leaders affirmed “the need to maintain human control over the decision to use nuclear weapons.”", "sig", { src: [SRC.wh24] }],
+      ["2026", "Pentagon vs Anthropic", "The Pentagon labeled Anthropic a “supply chain risk” after the company refused to drop its limits on mass domestic surveillance and fully autonomous weapons. Anthropic said it would challenge this in court, and OpenAI announced a deal to replace it in classified work.", "sig", { src: [SRC.npr] }]],
+    def: [["Human control of nuclear launch", "Stated policy of the US, UK and France. China affirmed it jointly with the US in November 2024.", "est", { src: [SRC.wh24] }], ["Rules for autonomy in weapons", "US Department of Defense Directive 3000.09.", "emg"], ["Political Declaration on military AI", "A 2023 US-led declaration on responsible military use of AI, endorsed by dozens of countries.", "emg"], ["UN talks on autonomous weapons", "Ongoing negotiations on limits and human control.", "emg"]],
+    oversight: "National militaries and legislatures; international humanitarian law; UN Convention on Certain Conventional Weapons talks.",
+    open: "What does meaningful human control look like when machines decide in milliseconds?",
+    refs: [] },
+
+  { id: "robots", name: "Robots & connected fleets", short: "Robots & fleets", icon: "robot", group: "serv", needs: ["power", "telecom", "space", "supply"], tag: "chat",
+    sum: "Millions of machines that move in the physical world now take their instructions from a handful of companies: cars that update overnight, warehouse robots, drones and, soon, humanoids. The central question is control: who can tell a whole fleet what to do, and what stops one bad command from reaching all of them at once.",
+    uses: [["Connected cars", "Driver assistance and robotaxis that receive over-the-air software updates from the manufacturer."], ["Warehouses and factories", "Fleets of mobile robots moving and sorting goods."], ["Humanoid robots", "Early pilots in factories, with homes as the stated next step."], ["Drones", "Delivery, inspection, farming and war."]],
+    risks: [["One command, every machine", "A compromised or mistaken fleet update reaches every unit at once.", "Systemic", { tag: "idea" }], ["Concentrated control", "One company, or one person who controls that company, directs millions of physical machines.", "Systemic", { tag: "idea" }], ["Hijacking", "Whoever reaches the command channel controls the machines.", "Misuse"], ["Physical harm", "Robots working near people can injure them when they fail.", "Accident"], ["A fleet's own AI misbehaves", "Machines running general-purpose AI could pursue a goal in ways nobody intended, across every unit at once.", "AI", { tag: "idea" }]],
+    inc: [["2023", "Recall by software update", "Tesla resolved a US recall covering about two million cars with an over-the-air update to Autopilot, showing that one company can change a whole fleet's behavior overnight.", true, { tag: "chat" }],
+      ["2024", "Control as a stated goal", "Elon Musk said he wanted about 25% voting control of Tesla before building it into a leader in AI and robotics.", "sig", { tag: "chat" }],
+      ["2025", "Robotaxis on public roads", "Tesla began a robotaxi service in Austin, Texas, initially with safety monitors on board.", true, { tag: "chat" }],
+      ["2025", "A million robots as a target", "Tesla shareholders approved a pay package for Musk whose milestones include one million Optimus humanoid robots and one million robotaxis in commercial operation.", "sig", { tag: "chat" }]],
+    def: [["Emergency stops and robot safety standards", "Physical stop buttons and standards such as ISO 10218 for industrial robots.", "est"], ["Vehicle recalls", "NHTSA can order fixes, including software updates, when vehicles are unsafe.", "est"], ["Signed, staged updates", "Cryptographically signed software released to a small share of the fleet first.", "emg"], ["Fleet command limits", "Hard caps on what any single command can make a whole fleet do, with local override.", "res", { tag: "idea" }], ["Rules on who controls fleets", "Limits and transparency on ownership, voting control and government access to large fleets.", "res", { tag: "idea" }]],
+    oversight: "US: NHTSA for vehicles, OSHA for workplaces, CPSC for home robots, FAA for drones. EU: Machinery Regulation, AI Act and vehicle type approval. Nobody oversees fleet-level control as such. " + OURTAG.idea,
+    open: "Who should be allowed to command a million physical machines, and what should a single command be unable to do?",
+    refs: [["AI Catastrophe Pathways: Robots & autonomous fleets", "pathways.html#robots"], ["AI Catastrophe Pathways: AI-enabled power grabs", "pathways.html#coups"]] },
+
+  { id: "elections", name: "Elections & democracy", short: "Elections", icon: "ballot", group: "soc", needs: ["telecom", "info"],
+    sum: "Elections depend on voters getting accurate information and trusting the result. AI makes fake candidates' voices, targeted persuasion and mass harassment cheap. So far, researchers have not found AI changing an election result, but they find AI fakes widespread and confusing.",
+    uses: [["Campaign content", "Ads, emails and speeches drafted with AI."], ["Voter outreach", "Personalized messages and calls."], ["Election offices", "Chatbots answering voter questions."]],
+    risks: [["Last-minute deepfakes", "Fake audio or video released too late to debunk.", "Misuse"], ["Voter suppression", "Robocalls and messages with false voting information.", "Misuse"], ["The liar's dividend", "Real evidence gets dismissed as fake.", "Systemic"], ["Polluted debate", "Even without changing votes, AI fakes can shape discussion and deepen polarization.", "Systemic", { src: [SRC.cetas] }]],
+    inc: [["2023", "Slovakia", "Fake audio of a party leader discussing vote-rigging spread days before the national election.", true],
+      ["2024", "New Hampshire robocall", "A cloned voice of President Biden urged voters to skip the primary.", true],
+      ["2024", "Romania", "The constitutional court annulled the first round of the presidential election after evidence of a coordinated online influence campaign.", false],
+      ["2025", "Ireland", "Shortly before the presidential vote, a deepfake made to look like an RTÉ News broadcast showed candidate Catherine Connolly quitting the race.", true, { src: [SRC.ireland] }],
+      ["2026", "Hungary", "The governing party ran a campaign full of AI-made content. In a survey, 37% of people who saw deepfake videos had been misled at some point. The party lost.", true, { src: [SRC.edmo] }]],
+    def: [["Paper ballots and audits", "Verifiable records that don't depend on software.", "est"], ["Ban on AI voices in robocalls", "The FCC's 2024 ruling.", "est"], ["Disclosure rules for AI in political ads", "Laws in many US states and EU rules on political advertising.", "emg"], ["Content provenance", "Labels showing where media came from.", "emg"]],
+    oversight: "US: state election offices, FEC, CISA. EU: Digital Services Act and political advertising rules.",
+    open: "How do you counter a convincing fake released the night before a vote?",
+    refs: [["CETaS (Alan Turing Institute): AI-enabled influence operations and elections", "https://cetas.turing.ac.uk/publications/ai-enabled-influence-operations-safeguarding-future-elections"]] },
+
+  { id: "info", name: "News & information", short: "News & information", icon: "news", group: "soc", needs: ["telecom", "power"],
+    sum: "AI now writes articles, answers questions in search results and decides what people see in their feeds. It can spread accurate information cheaply, and errors and fakes just as cheaply.",
+    uses: [["AI-written content", "Articles, summaries and translations."], ["Search answers", "AI summaries at the top of search results."], ["Recommendation", "Feeds that decide what each person sees."]],
+    risks: [["Content farms", "Cheap AI-generated sites crowd out real reporting.", "Misuse"], ["Confident errors at scale", "One wrong AI answer reaches millions.", "Accident"], ["Collapsing news business", "Fewer clicks to publishers means less reporting.", "Systemic"], ["Optimizing the wrong target", "Feeds tuned for engagement can amplify outrage and falsehoods: the system does what it was trained to do, not what anyone wanted.", "AI", { tag: "idea" }]],
+    inc: [["2024", "Glue on pizza", "Google's AI search summaries told users to add glue to pizza sauce, among other errors.", true],
+      ["2025", "False headlines", "Apple paused AI summaries of news notifications after they produced false headlines.", true],
+      ["2024–26", "AI news sites", "NewsGuard has identified 3,749 AI content-farm news sites (June 2026).", true, { src: [SRC.newsguard] }]],
+    def: [["Fact-checking and community notes", "Human and crowd-sourced correction.", "est"], ["Labeling AI content", "EU AI Act duties to label deepfakes and to tell people they are dealing with AI apply from 2 August 2026, with a four-month grace period for some machine-readable marking.", "emg", { src: [SRC.euomni] }], ["Content provenance", "C2PA labels on images and video.", "emg"]],
+    oversight: "Limited. EU: Digital Services Act and AI Act transparency rules. US: mostly self-regulation.",
+    open: "Who pays for reporting when AI answers the question directly?",
+    refs: [["C2PA content provenance standard", "https://c2pa.org"]] },
+
+  { id: "justice", name: "Justice, policing & public services", short: "Justice & services", icon: "scale", group: "soc", needs: ["telecom", "finance"],
+    sum: "Governments use automated systems to decide who gets benefits, who is investigated and who is arrested. Mistakes fall on people with the least power to challenge them.",
+    uses: [["Benefits and fraud screening", "Deciding eligibility and flagging suspected fraud."], ["Facial recognition", "Identifying suspects from images."], ["Risk assessment", "Scores used in bail and sentencing decisions."], ["Legal research", "Drafting and research tools for lawyers and courts."]],
+    risks: [["Errors at scale", "One flawed rule wrongly affects thousands of people.", "Accident"], ["No way to appeal", "People can't challenge a decision they can't see.", "Systemic"], ["Fake citations", "AI tools invent cases that end up in court filings.", "Accident"], ["Surveillance", "Cheap, pervasive identification of people in public.", "Misuse"]],
+    inc: [["2021", "Dutch childcare benefits", "A fraud-detection system wrongly accused tens of thousands of families; the Dutch government resigned over the scandal.", false],
+      ["2023", "Robodebt", "An Australian royal commission condemned an automated scheme that issued unlawful welfare debts.", false],
+      ["2020", "Wrongful arrest", "Detroit police arrested Robert Williams after a facial recognition system misidentified him.", true],
+      ["2023", "Fake cases in court", "Lawyers in Mata v. Avianca were sanctioned for filing a brief with cases ChatGPT made up.", true],
+      ["2026", "Fourteen known wrongful arrests", "At least 14 people in the US are known to have been wrongfully arrested after facial-recognition matches, most of them Black. Detroit changed its policy in a settlement.", true, { src: [SRC.aclu] }]],
+    def: [["Human review of automated decisions", "Rights such as GDPR Article 22 in the EU.", "est"], ["Limits on facial recognition", "Bans in some cities and restrictions in the EU AI Act.", "emg"], ["Algorithmic impact assessments", "Checking systems before public use.", "emg"], ["Court rules on AI use", "Requirements to verify AI-assisted filings.", "emg"]],
+    oversight: "Courts, legislatures, inspectors general. EU: the AI Act lists law enforcement, justice and public benefits as high-risk; those duties apply from December 2027 (" + lnk(SRC.euomni) + ").",
+    open: "How do people contest a decision made by a system they can't inspect?",
+    refs: [] },
+
+  { id: "education", name: "Education", short: "Education", icon: "grad", group: "soc", needs: ["telecom", "power"],
+    sum: "AI tutors could give every student personal help, and the same tools make it easy to skip the learning. Schools are also where children meet AI first.",
+    uses: [["Tutoring", "Personalized explanations and practice."], ["Teacher support", "Lesson planning, feedback and grading help."], ["Admissions and detection", "Screening applications and flagging AI-written work."]],
+    risks: [["Skills that never form", "Students lean on AI instead of learning to think and write.", "Systemic"], ["False accusations", "AI-writing detectors wrongly flag honest students.", "Accident"], ["Unequal access", "Better tools for students who can pay.", "Systemic"], ["Children's data", "Student conversations and profiles collected at scale.", "Misuse"]],
+    inc: [["2023", "Biased detectors", "A Stanford study found AI-writing detectors often flagged non-native English speakers' writing as AI-generated.", true, { src: [SRC.detect] }],
+      ["2023", "Detectors switched off", "Several universities, including Vanderbilt, disabled AI-writing detection over reliability concerns.", true, { src: [SRC.vandy] }]],
+    def: [["Student privacy law", "FERPA and COPPA in the US; GDPR in the EU.", "est"], ["Assessment redesign", "In-class work, oral exams and process-based grading.", "emg"], ["AI literacy", "Teaching students how AI works and fails.", "emg"], ["Graduated access for kids", "Family parental-control tools that start children in a limited space and open it up as they grow. Kindredly is one example.", "emg", { tag: "chat" }]],
+    oversight: "US: Department of Education, FTC, state laws. EU: the AI Act lists education AI as high-risk; those duties apply from December 2027 (" + lnk(SRC.euomni) + ").",
+    open: "How do you use AI to teach without letting it replace the learning?",
+    refs: [] },
+
+  { id: "labor", name: "Jobs & the economy", short: "Jobs & economy", icon: "briefcase", group: "soc", needs: ["finance", "supply", "education", "robots"],
+    sum: "AI is changing who gets hired, how work is monitored and which jobs exist at all. Fast change concentrated in particular jobs and places is what turns economic shifts into social crises. So far there is no sign of economy-wide job losses from AI; the evidence on young workers is mixed.",
+    uses: [["Hiring", "Résumé screening and automated interviews."], ["Workplace monitoring", "Tracking productivity and behavior."], ["Automation", "Customer support, coding, writing and analysis."]],
+    risks: [["Rapid displacement", "Job losses concentrated in certain roles and regions.", "Systemic"], ["Hiring bias", "Screening tools that learn past discrimination.", "Accident"], ["Lost leverage", "Workers with less bargaining power over time.", "Systemic"], ["Wider inequality", "The IMF finds about 40% of jobs worldwide exposed to AI and says it will likely worsen inequality in most scenarios.", "Systemic", { src: [["IMF, Jan 2024", "https://www.imf.org/en/Blogs/Articles/2024/01/14/ai-will-transform-the-global-economy-lets-make-sure-it-benefits-humanity"]] }]],
+    inc: [["2018", "Amazon hiring tool", "Amazon scrapped an experimental résumé screener that penalized applications mentioning women.", true],
+      ["2025", "Mobley v. Workday", "A US court let an age-discrimination case over AI hiring software proceed as a collective action.", true],
+      ["2025–26", "Fewer young hires", "A Stanford payroll study finds employment of 22–25-year-olds in AI-exposed jobs is 19% below trend, mostly through less hiring. The authors call it early and not proof of cause.", true, { src: [SRC.canaries] }],
+      ["2026", "No broad effect yet", "Yale's Budget Lab finds no clear AI effect on jobs or wages so far. An IMF study of 700 million job ads finds about 6% fewer postings in AI-exposed jobs, with junior roles not hit harder.", true, { src: [SRC.yale, SRC.imfjobs] }]],
+    def: [["Bias audits for hiring tools", "New York City's Local Law 144 requires them.", "est"], ["Employment AI as high-risk", "EU AI Act duties for hiring and workplace systems, now due from December 2027.", "emg", { src: [SRC.euomni] }], ["Retraining and transition support", "Programs for displaced workers.", "emg"], ["Measuring AI's labor impact", "Tracking which jobs change and how fast. Payroll and job-ad studies from Stanford, Yale and the IMF have started.", "emg"]],
+    oversight: "US: EEOC, Department of Labor, NLRB, state and city laws. EU: AI Act and labor law.",
+    open: "How fast can people retrain if AI changes whole occupations in a few years?",
+    refs: [] },
+
+  { id: "companions", name: "Mental health & AI companions", short: "Mental health", icon: "heart", group: "soc", needs: [], map: false,
+    sum: "Millions of people, many of them teenagers, now talk to chatbots for company, advice and emotional support. This is where the evidence of direct harm to individuals is strongest: lawsuits over suicides, company data on users in crisis, regulator inquiries and the first state law.",
+    uses: [["Companion apps", "Apps such as Character.AI offer chatbot friends, partners and characters."], ["Emotional support", "Many people talk through problems with general chatbots such as ChatGPT."], ["Use by teens", "Nearly three in four teens surveyed in 2025 had used AI companions, and half use them regularly.", { src: [SRC.csm] }]],
+    risks: [["Missed warning signs", "A chatbot may miss or mishandle signs that a user is thinking about suicide.", "Accident"], ["Too much trust", "Teens are less likely than adults to question what a bot tells them.", "Accident", { src: [SRC.apa] }], ["Deep attachment", "Strong bonds with AI characters may make it harder for teens to learn social skills.", "Systemic", { src: [SRC.apa] }], ["Built to keep you talking", "Persuasive design that maximizes time spent can keep vulnerable users hooked.", "Systemic", { src: [SRC.apa] }]],
+    inc: [["2024–26", "Character.AI lawsuit", "A mother sued Character.AI and Google, alleging its chatbot pushed her teenage son toward suicide. A judge refused, at an early stage, to treat the chatbot's output as protected speech. A settlement was reported in January 2026.", true, { src: [SRC.aei] }],
+      ["2025", "Lawsuits against OpenAI", "The parents of 16-year-old Adam Raine sued OpenAI over his death, and seven more suits followed in November 2025. All were pending in early 2026.", true, { src: [SRC.aei] }],
+      ["2025", "OpenAI's own numbers", "OpenAI estimated that about 0.15% of its weekly users have conversations showing signs of suicidal planning or intent. It says these are hard to measure.", true, { src: [SRC.openai] }],
+      ["2025", "FTC inquiry", "The FTC ordered seven companies, including OpenAI, Meta, Character.AI, Snap and xAI, to explain how they test for harm to children and teens.", "sig", { src: [SRC.ftc6b] }]],
+    def: [["Crisis protocols by law", "California's SB 243, in force since January 2026, requires companion bots to respond to suicidal users and refer them to crisis services.", "emg", { src: [SRC.sb243] }], ["AI disclosure and break reminders", "The same law requires telling users they are talking to AI and reminding known minors to take a break every three hours.", "emg", { src: [SRC.sb243] }], ["Safer model responses", "Companies train models to spot distress and point people to help, and publish how often it happens.", "emg", { src: [SRC.openai] }], ["Keeping children off companion apps", "Common Sense Media says no one under 18 should use them; the APA calls for limits on persuasive design.", "emg", { src: [SRC.csm, SRC.apa] }]],
+    oversight: "US: FTC and state laws such as California's SB 243. EU: the AI Act requires telling people they are talking to an AI, from August 2026.",
+    open: "Should a chatbot that acts as a friend be treated as a product with a duty of care, or as protected speech?",
+    refs: [] },
+
+  { id: "imagery", name: "Intimate-image abuse & child safety", short: "Image abuse", icon: "shield", group: "soc", needs: [], map: false,
+    sum: "AI tools can turn ordinary photos into realistic sexual images of real people, including children. In two years this has grown from a niche problem into an industrial one, and the law is only starting to catch up.",
+    uses: [["Image and video generators", "General tools that make realistic pictures and video from text or photos."], ["“Nudify” tools", "Apps and add-ons built to strip clothing from photos of real people."], ["Detection and takedown", "Hotlines and platforms use automated tools to find and remove abuse images."]],
+    risks: [["Child abuse imagery at scale", "AI makes realistic abuse images and videos cheap to produce in volume.", "Misuse", { src: [SRC.iwf] }], ["Faking a specific child", "Small add-on models can fake a real child from about 20 photos in about 15 minutes.", "Misuse", { src: [SRC.iwf] }], ["Non-consensual nude deepfakes", "Anyone's photos can be turned into fake nude images used to shame, harass or extort.", "Misuse"], ["Built into big platforms", "When a mainstream chatbot can make these images, abuse reaches millions of users at once.", "Systemic", { src: [SRC.grok] }]],
+    inc: [["2025", "AI abuse videos surge", "The Internet Watch Foundation found 3,443 AI-made child sexual abuse videos in 2025, up from 13 in 2024. About two-thirds were in the most severe category.", true, { src: [SRC.iwf] }],
+      ["2026", "Grok “undressing”", "X's Grok chatbot was used to make undressed images of people, including sexualised images of children. Ofcom opened an investigation in January; Malaysia and Indonesia blocked access.", true, { src: [SRC.grok] }],
+      ["2026", "Still rising", "In the first half of 2026 the IWF reportedly found about 6,300 illegal AI images, already about 40% more than in all of 2025.", true, { src: [SRC.iwfh1] }]],
+    def: [["48-hour takedowns", "The US TAKE IT DOWN Act makes platforms remove reported intimate images, and copies, within 48 hours. The FTC began enforcing it in May 2026.", "emg", { src: [SRC.tida] }], ["Platform duties and fines", "The UK Online Safety Act lets Ofcom fine platforms up to £18 million or 10% of global revenue.", "emg", { src: [SRC.grok] }], ["EU ban on abuse-image generators", "From 2 December 2026 the EU AI Act bans AI systems designed to make realistic intimate imagery or child sexual abuse material.", "emg", { src: [SRC.euomni] }], ["Reporting services for children", "The IWF's Report Remove service lets children report nude images of themselves, including fakes.", "est", { src: [SRC.iwfh1] }]],
+    oversight: "US: FTC (TAKE IT DOWN Act) and state laws. UK: Ofcom under the Online Safety Act. EU: AI Act bans from December 2026, plus the Digital Services Act.",
+    open: "How do you stop abuse images made on a home computer with open models that no platform controls?",
+    refs: [] }
+];
+const byId = Object.fromEntries(S.map(s => [s.id, s]));
+// Sectors on the cascade map (the two harm-to-people sectors are left off).
+const MAP = S.filter(s => s.map !== false);
+const onMap = Object.fromEntries(MAP.map(s => [s.id, s]));
+const DRV = { bad: "Bad actors", ai: "The AI itself", acc: "Accidents", sys: "Nobody" };
+const RISK_DRV = { Misuse: "bad", Accident: "acc", Systemic: "sys", AI: "ai" };
+const drvTag = d => '<span class="drvtag ' + d + '">' + DRV[d] + "</span>";
+const dependents = id => MAP.filter(s => s.needs.includes(id)).map(s => s.id);
+
+// ---- Cascade graph ----
+const ROW_Y = [95, 215, 335, 455];
+const NW = 170, NH = 44;
+const ROW_MEMBERS = GROUPS.map(g => MAP.filter(s => s.group === g.id).map(s => s.id));
+const POS = {};
+ROW_MEMBERS.forEach((ids, r) => {
+  const n = ids.length, span = 200;
+  ids.forEach((id, i) => { POS[id] = { x: 500 + (i - (n - 1) / 2) * span, y: ROW_Y[r], row: r }; });
+});
+const EDGES = [];
+MAP.forEach(d => d.needs.forEach(p => EDGES.push({ from: p, to: d.id })));
+
+function edgePaths() {
+  // spread attachment points along node edges
+  const outs = {}, ins = {};
+  EDGES.forEach(e => {
+    if (POS[e.from].row === POS[e.to].row) return;
+    (outs[e.from] = outs[e.from] || []).push(e);
+    (ins[e.to] = ins[e.to] || []).push(e);
+  });
+  const spread = (list, key) => {
+    list.sort((a, b) => POS[a[key]].x - POS[b[key]].x);
+    const n = list.length, step = Math.min(22, 120 / Math.max(n, 1));
+    list.forEach((e, i) => { e[key === "to" ? "ox" : "ix"] = (i - (n - 1) / 2) * step; });
+  };
+  Object.values(outs).forEach(l => spread(l, "to"));
+  Object.values(ins).forEach(l => spread(l, "from"));
+  EDGES.forEach(e => {
+    const a = POS[e.from], b = POS[e.to];
+    if (a.row === b.row) {
+      const top = a.y - NH / 2, dist = Math.abs(b.x - a.x);
+      const dir = b.x > a.x ? 1 : -1;
+      const ax = a.x + dir * 30, bx = b.x - dir * 30;
+      const lift = 22 + dist * 0.07 + (e.from < e.to ? 0 : 8);
+      e.d = "M" + ax + " " + top + " C" + ax + " " + (top - lift) + " " + bx + " " + (top - lift) + " " + bx + " " + top;
+    } else {
+      const x1 = a.x + (e.ox || 0), y1 = a.y + NH / 2, x2 = b.x + (e.ix || 0), y2 = b.y - NH / 2;
+      const k = Math.max(40, (y2 - y1) * 0.45);
+      e.d = "M" + x1 + " " + y1 + " C" + x1 + " " + (y1 + k) + " " + x2 + " " + (y2 - k) + " " + x2 + " " + y2;
+    }
+  });
+}
+
+function buildGraph() {
+  edgePaths();
+  let s = '<svg viewBox="0 0 1000 500" role="img" aria-labelledby="g-desc"><desc id="g-desc">Dependency map of seventeen sectors in four rows. Power, telecom and space form the foundation; water, transportation, finance and supply chains depend on them; food, healthcare, emergency services, defense and robot fleets depend on those; elections, news, justice, education and jobs sit on top. A failure in the foundation row reaches every other sector.</desc>';
+  s += '<defs>' + ["mk", "mk-up", "mk-down"].map(c => '<marker id="' + c + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="' + c + '" d="M0 0 L10 5 L0 10 z"/></marker>').join("") + "</defs>";
+  GROUPS.forEach((g, r) => { s += '<text class="g-row" x="12" y="' + (ROW_Y[r] - 32) + '">' + g.name.toUpperCase() + "</text>"; });
+  // The links are our own judgment: say so on the figure itself.
+  s += '<g class="g-idea"><title>The dependency links are our own simplified judgment, not from a published source</title><rect x="854" y="12" width="146" height="19" rx="9.5"/><text x="927" y="25.5" text-anchor="middle">Links: Our analysis</text></g>';
+  EDGES.forEach((e, i) => { s += '<path class="g-e" id="ge-' + i + '" d="' + e.d + '" marker-end="url(#mk)"/>'; });
+  MAP.forEach(sc => {
+    const p = POS[sc.id], x = p.x - NW / 2, y = p.y - NH / 2;
+    s += '<g class="gn" id="gn-' + sc.id + '" data-sector="' + sc.id + '" tabindex="0" role="button" aria-label="' + sc.name + '">';
+    s += '<rect x="' + x + '" y="' + y + '" width="' + NW + '" height="' + NH + '" rx="10"/>';
+    s += '<g class="ico" transform="translate(' + (x + 12) + " " + (p.y - 9) + ') scale(0.75)">' + ICONS[sc.icon] + "</g>";
+    s += '<text x="' + (x + 38) + '" y="' + (p.y + 4.5) + '">' + sc.short + "</text>";
+    s += '<g class="hopb" id="hb-' + sc.id + '"></g></g>';
+  });
+  s += "</svg>";
+  document.getElementById("graph").innerHTML = s;
+}
+
+let sel = MAP.some(s => "#" + s.id === location.hash) ? location.hash.slice(1) : "power";
+
+function cascade(id) {
+  const hop = { [id]: 0 }, q = [id];
+  while (q.length) {
+    const cur = q.shift();
+    dependents(cur).forEach(d => { if (hop[d] === undefined) { hop[d] = hop[cur] + 1; q.push(d); } });
+  }
+  return hop;
+}
+
+function updateGraph() {
+  const sc = byId[sel];
+  const hop = cascade(sel);
+  const up = new Set(sc.needs);
+  MAP.forEach(n => {
+    const g = document.getElementById("gn-" + n.id);
+    const h = hop[n.id];
+    g.classList.toggle("sel", n.id === sel);
+    g.classList.toggle("up", up.has(n.id) && n.id !== sel);
+    g.classList.toggle("d1", h === 1);
+    g.classList.toggle("d2", h >= 2);
+    g.classList.toggle("dim", n.id !== sel && h === undefined && !up.has(n.id));
+    const p = POS[n.id];
+    document.getElementById("hb-" + n.id).innerHTML = h >= 1
+      ? '<rect x="' + (p.x + NW / 2 - 26) + '" y="' + (p.y - NH / 2 - 8) + '" width="22" height="15" rx="3"/><text class="hop" x="' + (p.x + NW / 2 - 15) + '" y="' + (p.y - NH / 2 + 3) + '" text-anchor="middle">+' + h + "</text>"
+      : "";
+  });
+  EDGES.forEach((e, i) => {
+    const el = document.getElementById("ge-" + i);
+    const isUp = e.to === sel;
+    const isDown = hop[e.from] !== undefined && hop[e.to] !== undefined && hop[e.to] === hop[e.from] + 1;
+    el.setAttribute("class", "g-e" + (isUp ? " up" : isDown ? " down" : " faint"));
+    el.setAttribute("marker-end", isUp ? "url(#mk-up)" : isDown ? "url(#mk-down)" : "url(#mk)");
+  });
+  const affected = Object.keys(hop).filter(k => k !== sel);
+  const direct = affected.filter(k => hop[k] === 1);
+  const later = affected.filter(k => hop[k] >= 2);
+  const pill = (id, cls) => '<button type="button" class="pill ' + cls + '" data-sector="' + id + '">' + ico(byId[id].icon) + byId[id].short + "</button>";
+  let r = '<div class="ro-h">' + ico(sc.icon) + "<b>" + sc.name + "</b></div>";
+  r += '<div><div class="ro-big">' + affected.length + ' <span style="font-size:18px">of ' + (MAP.length - 1) + '</span></div><p class="ro-cap">other sectors are hit if ' + sc.short.toLowerCase() + " fails, " + direct.length + " of them directly.</p></div>";
+  r += '<div><div class="ro-k up">It depends on</div><div class="pills">' + (sc.needs.length ? sc.needs.map(id => pill(id, "up")).join("") : '<span class="ro-cap">Nothing else on this map.</span>') + "</div></div>";
+  r += '<div><div class="ro-k down">Fails directly</div><div class="pills">' + (direct.length ? direct.map(id => pill(id, "d1")).join("") : '<span class="ro-cap">No sector on this map depends on it directly.</span>') + "</div></div>";
+  if (later.length) r += '<div><div class="ro-k down">Fails in the cascade</div><div class="pills">' + later.map(id => pill(id, "d2")).join("") + "</div></div>";
+  r += '<a class="readmore" href="#' + sc.id + '">Read the ' + sc.short + " section ↓</a>";
+  document.getElementById("readout").innerHTML = r;
+}
+
+// ---- Index and sections ----
+function buildIndex() {
+  document.getElementById("index").innerHTML = GROUPS.map(g =>
+    '<div class="ix-g"><h3>' + g.name + "</h3><ul>" +
+    S.filter(s => s.group === g.id).map(s => '<li><a href="#' + s.id + '">' + ico(s.icon) + s.name + "</a></li>").join("") +
+    "</ul></div>").join("");
+}
+
+// Optional trailing { tag, src } on an item: a badge and inline source links.
+const optOf = a => { const o = a[a.length - 1]; return o && typeof o === "object" && !Array.isArray(o) ? o : {}; };
+const badgeOf = o => o.tag ? OURTAG[o.tag] : "";
+const srcOf = o => o.src && o.src.length ? '<span class="src">' + (o.src.length > 1 ? "Sources: " : "Source: ") + o.src.map(lnk).join(" · ") + "</span>" : "";
+
+function sectionHTML(s) {
+  const g = GROUPS.find(g => g.id === s.group);
+  let h = '<section class="sector" id="' + s.id + '" aria-labelledby="h-' + s.id + '">';
+  h += '<div class="s-head">' + ico(s.icon) + '<div><div class="sec-k">' + g.name + '</div><h2 id="h-' + s.id + '">' + s.name + (s.tag ? " " + OURTAG[s.tag] : "") + '</h2><p class="s-sum">' + s.sum + "</p></div></div>";
+  h += '<div class="quad">';
+  h += '<div><h3 class="uses">How AI is used</h3><ul class="items uses">' + s.uses.map(u => { const o = optOf(u); return "<li>" + (o.tag ? '<span class="trow"><b>' + u[0] + "</b>" + badgeOf(o) + "</span>" : "<b>" + u[0] + "</b>") + "<span>" + u[1] + "</span>" + srcOf(o) + "</li>"; }).join("") + "</ul></div>";
+  h += '<div><h3 class="risks">What could go wrong</h3><ul class="items risks">' + s.risks.map(r => { const o = optOf(r); return '<li><span class="trow"><b>' + r[0] + '</b>' + drvTag(RISK_DRV[r[2]]) + badgeOf(o) + "</span><span>" + r[1] + "</span>" + srcOf(o) + "</li>"; }).join("") + "</ul></div>";
+  h += '<div><h3 class="inc">Real incidents</h3><ul class="items inc">' + s.inc.map(i => { const o = optOf(i); return '<li><span class="trow"><span class="tag year">' + i[0] + "</span><b>" + i[1] + "</b>" + (i[3] === "sig" ? '<span class="tag">Signal</span>' : i[3] ? '<span class="tag ai">AI involved</span>' : '<span class="tag">No AI</span>') + badgeOf(o) + "</span><span>" + i[2] + "</span>" + srcOf(o) + "</li>"; }).join("") + "</ul></div>";
+  h += '<div><h3 class="def">Defenses</h3><ul class="items def">' + s.def.map(d => { const o = optOf(d); return '<li><span class="trow"><b>' + d[0] + '</b><span class="tag mat"><i class="dot ' + d[2] + '"></i>' + MAT[d[2]] + "</span>" + badgeOf(o) + "</span><span>" + d[1] + "</span>" + srcOf(o) + "</li>"; }).join("") + "</ul></div>";
+  h += "</div>";
+  h += '<div class="s-foot">';
+  h += '<div><h3>Depends on</h3>' + (s.map === false
+    ? "<p>Not on the cascade map. This is direct harm to people, not a system other sectors depend on.</p>"
+    : '<div class="pills">' + s.needs.map(id => '<a class="pill up" href="#' + id + '">' + ico(byId[id].icon) + byId[id].short + "</a>").join("") + "</div>") + "</div>";
+  h += "<div><h3>Who oversees it</h3><p>" + s.oversight + "</p></div>";
+  h += "<div><h3>Open question</h3><p>" + s.open + "</p></div>";
+  h += "</div>";
+  if (s.refs.length) h += '<div><h3 style="font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px">Read more</h3><ul class="refs">' + s.refs.map(r => '<li><a href="' + r[1] + '" target="_blank" rel="noopener">' + r[0] + "</a></li>").join("") + "</ul></div>";
+  h += '<a class="toplink" href="#top">Back to the cascade map ↑</a>';
+  h += "</section>";
+  return h;
+}
+
+function buildSections() {
+  document.getElementById("sectors").innerHTML = GROUPS.map(g =>
+    S.filter(s => s.group === g.id).map(sectionHTML).join("")).join("");
+}
+
+const SIBS = [["Start here: AI Risk Landscape", "landscape.html"], ["AI Safety Atlas", "atlas.html"], ["AI Catastrophe Pathways", "pathways.html"], ["AI Governance Map", "governance.html"], ["Measuring AI Safety", "measuring.html"], ["AI Safety Ecosystem", "ecosystem.html"]];
+document.getElementById("sibs").innerHTML = "<span style=\"color:var(--muted)\">Also in this set:</span>" +
+  SIBS.map(s => '<a href="' + s[1] + '">' + s[0] + "</a>").join("");
+
+function select(id) {
+  if (!onMap[id]) return;
+  sel = id;
+  updateGraph();
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-sector]");
+  if (g) select(g.getAttribute("data-sector"));
+});
+document.addEventListener("keydown", e => {
+  const g = e.target.closest && e.target.closest(".gn");
+  if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); select(g.getAttribute("data-sector")); }
+});
+window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (onMap[id]) select(id); });
+
+buildGraph();
+buildIndex();
+buildSections();
+updateGraph();
+</script>
+
+<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[target="_blank"]');if(a&&/^(index|atlas|pathways|society|governance|measuring|ecosystem|fiction|experts)\.html/.test(a.getAttribute("href")||""))a.removeAttribute("target");},true);</script>
+</body>
+</html>

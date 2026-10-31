@@ -1,0 +1,378 @@
+---
+import Base from '../../layouts/Base.astro';
+import Wordmark from '../../components/Wordmark.astro';
+import { SITE } from '../../consts';
+
+// The pages themselves are self-contained HTML in public/safety/.
+const start = {
+  title: 'AI Risk Landscape',
+  href: '/safety/landscape.html',
+  blurb:
+    'A start-here overview of AI risk: who or what causes it, how the risks connect, and where defenses stand.',
+};
+
+const groups = [
+  {
+    id: 'risks',
+    label: 'The risks',
+    intro: 'What can go wrong, and where.',
+    pages: [
+      {
+        title: 'AI Safety Atlas',
+        href: '/safety/atlas.html',
+        blurb:
+          'An interactive map of protections and weak points for people and organizations using already-trained AI models.',
+      },
+      {
+        title: 'AI Catastrophe Pathways',
+        href: '/safety/pathways.html',
+        blurb:
+          'How AI could contribute to large-scale catastrophe, step by step, with the evidence for each step and where people can still intervene.',
+      },
+      {
+        title: 'Society & Critical Systems',
+        href: '/safety/society.html',
+        blurb:
+          'AI risks across finance, health, energy, elections, jobs and other critical systems, with measured evidence and incidents.',
+      },
+    ],
+  },
+  {
+    id: 'response',
+    label: 'The response',
+    intro: 'How AI is governed and measured, and who is working on it.',
+    pages: [
+      {
+        title: 'AI Governance Map',
+        href: '/safety/governance.html',
+        blurb:
+          'AI laws, orders and policies by jurisdiction, with a timeline and the live debates.',
+      },
+      {
+        title: 'Measuring AI Safety',
+        href: '/safety/measuring.html',
+        blurb:
+          'How AI safety is measured, where measurement goes wrong, and a close look at sycophancy and honesty.',
+      },
+      {
+        title: 'AI Safety Ecosystem',
+        href: '/safety/ecosystem.html',
+        blurb:
+          'The organizations, funders and research that make up the AI safety field.',
+      },
+    ],
+  },
+  {
+    id: 'perspectives',
+    label: 'Perspectives',
+    intro: 'What experts say, and how fiction compares.',
+    pages: [
+      {
+        title: 'What the Experts Say',
+        href: '/safety/experts.html',
+        blurb:
+          'What researchers, governments and other authoritative sources say about AI risk, alignment, security, governance and evaluation.',
+      },
+      {
+        title: 'AI Fiction Atlas',
+        href: '/safety/fiction.html',
+        blurb:
+          'Famous AI stories from film, books, TV and games, mapped to real risk scenarios and checked against research.',
+      },
+    ],
+  },
+];
+
+const pageCount = 1 + groups.reduce((n, g) => n + g.pages.length, 0);
+const year = new Date().getFullYear();
+---
+
+<Base
+  title="AI Safety"
+  description="A set of reference pages on AI risk: what can go wrong, how it is governed and measured, and what experts say."
+>
+  <div class="shell">
+    <header class="top">
+      <Wordmark href="/" />
+    </header>
+
+    <main>
+      <div class="intro">
+        <p class="eyebrow">Reference set</p>
+        <h1>AI Safety</h1>
+        <p class="lede">
+          Reference pages on AI risk: what can go wrong, how it is being
+          governed and measured, and what experts say. Most are interactive.
+        </p>
+        <p class="meta">
+          <span>{pageCount} pages</span>
+          <span aria-hidden="true">·</span>
+          <span>Sources checked 31 October 2026</span>
+        </p>
+      </div>
+
+      <a class="start" href={start.href}>
+        <span class="start-text">
+          <span class="kicker">Start here</span>
+          <span class="start-title">{start.title}</span>
+          <span class="blurb">{start.blurb}</span>
+        </span>
+        <span class="start-go" aria-hidden="true">&rarr;</span>
+      </a>
+
+      {
+        groups.map((group) => (
+          <section aria-labelledby={`g-${group.id}`}>
+            <header class="group-head">
+              <h2 id={`g-${group.id}`}>{group.label}</h2>
+              <p>{group.intro}</p>
+            </header>
+            <ul class="cards">
+              {group.pages.map((page) => (
+                <li>
+                  <a class="card" href={page.href}>
+                    <span class="card-title">{page.title}</span>
+                    <span class="blurb">{page.blurb}</span>
+                    <span class="card-go" aria-hidden="true">
+                      Open &rarr;
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </main>
+
+    <footer>
+      <p>&copy; {year} {SITE.name}</p>
+    </footer>
+  </div>
+</Base>
+
+<style>
+  .shell {
+    --wide: 64rem;
+    --radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    padding: clamp(1.5rem, 5vw, 4rem);
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .top,
+  main,
+  footer {
+    max-width: var(--wide);
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* --- intro ----------------------------------------------------- */
+  .intro {
+    max-width: 38rem;
+  }
+
+  .eyebrow,
+  .kicker,
+  h2 {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.75rem;
+    color: var(--ink-faint);
+  }
+
+  h1 {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 1.4rem + 4.4vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    margin: 1.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-faint);
+  }
+
+  /* --- start here ------------------------------------------------ */
+  .start {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.75rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--rule));
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 7%, var(--bg-elev));
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 150ms ease;
+  }
+
+  .start-text {
+    display: grid;
+    gap: 0.5rem;
+    flex: 1;
+    max-width: 40rem;
+  }
+
+  .kicker {
+    color: var(--accent);
+  }
+
+  .start-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.1rem);
+    line-height: 1.15;
+  }
+
+  .start-go {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 1.25rem;
+    transition: transform 150ms ease;
+  }
+
+  .start:hover {
+    border-color: var(--accent);
+  }
+
+  .start:hover .start-go {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 30rem) {
+    .start {
+      gap: 1rem;
+    }
+
+    .start-go {
+      width: 2.25rem;
+      height: 2.25rem;
+      font-size: 1rem;
+    }
+  }
+
+  /* --- groups ---------------------------------------------------- */
+  section {
+    margin-top: clamp(2.75rem, 6vw, 4rem);
+  }
+
+  .group-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 1rem;
+    padding-bottom: 0.9rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h2 {
+    color: var(--ink-faint);
+  }
+
+  .group-head p {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    height: 100%;
+    padding: 1.25rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .blurb {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  .card-go {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-faint);
+    transition: color 150ms ease;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .card:hover .card-go {
+    color: var(--accent);
+  }
+
+  /* --- footer ---------------------------------------------------- */
+  footer {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  footer p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--ink-faint);
+  }
+</style>
