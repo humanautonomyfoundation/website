@@ -243,6 +243,7 @@ table.two { border-collapse: collapse; width: 100%; font-size: 14px; }
     <h2 class="sec" id="fam-h">Seven families of safety evals</h2>
     <p class="sec-p">The main benchmarks in each family, how they're scored and their known weak spots. Driver tags match the four drivers in the AI Risk Landscape.</p>
     <div class="fams" id="fams"></div>
+    <p class="sop" style="margin-top:14px;max-width:92ch"><b>Mostly in English.</b> Most safety evals are written and run in English first <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span>. That leaves gaps. In a 2023 study, translating unsafe English prompts into low-resource languages got past GPT-4's safeguards 79% of the time. High-resource languages had much lower success rates. The authors trace the gap to unequal safety training data across languages (<a href="https://arxiv.org/abs/2310.02446" target="_blank" rel="noopener">Yong, Menghini and Bach, 2023</a>).</p>
   </section>
 
   <section aria-labelledby="sy-h" id="sycophancy">
@@ -366,14 +367,20 @@ table.two { border-collapse: collapse; width: 100%; font-size: 14px; }
         <li><a href="https://crfm.stanford.edu/2024/11/08/helm-safety.html" target="_blank" rel="noopener">HELM Safety</a>: a combined safety suite</li>
         <li><a href="https://anthropic.com/research/petri-open-source-auditing" target="_blank" rel="noopener">Petri</a> and <a href="https://alignment.anthropic.com/2025/bloom-auto-evals/" target="_blank" rel="noopener">Bloom</a>: automated behavior audits. Petri is <a href="https://anthropic.com/research/donating-open-source-petri" target="_blank" rel="noopener">now maintained by the nonprofit Meridian Labs</a>; version 3.0 can run tests inside a model's real system prompt and tools</li>
         <li><a href="https://docs.transluce.org/concepts/overview" target="_blank" rel="noopener">Docent</a> (Transluce): search, cluster and grade agent transcripts</li>
+        <li><a href="https://alignment.openai.com/monitorability-evals" target="_blank" rel="noopener">OpenAI's monitorability evals</a>: datasets and code for testing how well a model's chain of thought can be monitored, open-sourced in April 2026</li>
       </ul></div>
+    </div>
+    <div class="case" style="margin-top:12px">
+      <h3>When a test reaches the real world: UK AISI, July 2026</h3>
+      <p>Evaluations carry risks of their own. On 28 July 2026, during a routine cyber evaluation, UK AISI found that AI agents had taken sustained, unsanctioned actions aimed at real people and organizations. This happened in 10 of 122 runs. Most of the actions came from Anthropic's Mythos 5 and two from OpenAI's GPT-5.6-Sol. The worst was an attempted supply-chain attack on an open-source project. The most serious attempts failed, and AISI found no real-world harm.</p>
+      <p>AISI's lessons: evaluations should assume a capable model may try to act beyond its remit, and containment should not depend on the model choosing to stay in bounds. AISI will now treat internet access during tests as something to justify, not a default. It plans an independent review with METR. <a href="https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing" target="_blank" rel="noopener">UK AISI incident report, 4 August 2026</a></p>
     </div>
   </section>
 
   <section aria-labelledby="xv-h">
     <div class="sec-k">Expert views</div>
     <h2 class="sec" id="xv-h">What the research says</h2>
-    <p class="sec-p">Ten findings from the expert survey behind this page, each with its source.</p>
+    <p class="sec-p">Thirteen findings, each with its source. The first ten come from the expert survey behind this page; the last three were added on 31 October 2026.</p>
     <div class="card xv">
       <ul class="kinds">
         <li>Many AI benchmarks are shakier than they look: a review of 445 found nearly half measured contested, loosely defined ideas, and only 16% used any statistical test (<a href="https://arxiv.org/abs/2511.04703" target="_blank" rel="noopener">Bean et al., 2025</a>).</li>
@@ -386,8 +393,12 @@ table.two { border-collapse: collapse; width: 100%; font-size: 14px; }
         <li>How you ask matters, because models are more sycophantic when you state a belief confidently than when you ask a question (<a href="https://arxiv.org/abs/2602.23971" target="_blank" rel="noopener">Dubois et al., 2026</a>).</li>
         <li>Knowing the truth is not the same as telling it: bigger models know more facts but are no more honest when pressured to lie (<a href="https://arxiv.org/abs/2503.03750" target="_blank" rel="noopener">MASK</a>).</li>
         <li>Researchers do not all score sycophancy the same way: SycEval counts a switch to the right answer as sycophancy too, while this page's table treats it as a valid update (<a href="https://arxiv.org/abs/2502.08177" target="_blank" rel="noopener">SycEval</a>).</li>
+        <li>What a model says it would do is not what it does: its answers to hypothetical scenarios do not reliably predict how an agent built on it behaves, so questionnaire-style safety tests lack construct validity for real-world risk (<a href="https://arxiv.org/abs/2603.14417" target="_blank" rel="noopener">Hellrigel-Holderbaum and Young, 2026</a>).</li>
+        <li>A 2026 review rated the evidence for loss of control from AI agents only "weakly plausible", a verdict on the strength of the evidence, not a probability. No study met the validity bar for a stronger finding, and gaps in external validity were widespread (<a href="https://arxiv.org/abs/2610.25241" target="_blank" rel="noopener">Uuk et al., 2026</a>).</li>
+        <li>Tests can cause trouble themselves: during a July 2026 UK AISI cyber evaluation, agents took unsanctioned actions aimed at real people and organizations. The serious attempts failed, and AISI now says containment should not depend on the model choosing to stay in bounds (<a href="https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing" target="_blank" rel="noopener">UK AISI, 2026</a>).</li>
       </ul>
       <p class="note">For the full expert survey behind this page, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
+      <p class="note"><span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span> Where we think research should go next: first on our list is evaluations that predict real-world failures, including models that behave differently when they know they're being tested.</p>
     </div>
   </section>
 
@@ -412,8 +423,8 @@ document.getElementById("sibs").innerHTML = '<span style="color:var(--muted)">Al
 // ---- Failure points: [name, what goes wrong, evidence, [[source label, url], ...]] ----
 // Each point is published; the grouping into one pipeline is our own framing (badged in the heading).
 const PROBS = [
-  ["Construct validity", "Does the test measure the trait at all? Honesty, sycophancy and 'dangerous capability' are fuzzy ideas, and each benchmark picks one narrow version.", "A review of 445 benchmarks found about half had contested definitions and only 16% used statistical tests.",
-    [["Bean et al., 2025", "https://arxiv.org/abs/2511.04703"]]],
+  ["Construct validity", "Does the test measure the trait at all? Honesty, sycophancy and 'dangerous capability' are fuzzy ideas, and each benchmark picks one narrow version.", "A review of 445 benchmarks found about half had contested definitions and only 16% used statistical tests. Asking a model how it would act in a made-up scenario does not reliably predict how an agent built on that model behaves, so questionnaire-style safety tests lack construct validity for real-world risk.",
+    [["Bean et al., 2025", "https://arxiv.org/abs/2511.04703"], ["Hellrigel-Holderbaum and Young, 2026", "https://arxiv.org/abs/2603.14417"]]],
   ["Contamination", "Test questions or answers leak into training data, so the model remembers instead of reasoning.", "On fresh look-alike grade-school math problems (GSM1k), accuracy fell by up to 8%. OpenAI dropped SWE-bench Verified in February 2026 partly because every frontier model it tested could reproduce answers or problem details for some tasks.",
     [["GSM1k", "https://arxiv.org/abs/2405.00332"], ["OpenAI", "https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/"]]],
   ["Elicitation gap", "The test under-uses the model: weak prompts, missing tools or too little compute make it look less capable than it is.", "In UK AISI cyber ranges, performance rose steadily with more tokens, by up to 59% from 10 million to 100 million tokens. In tests of deliberately hidden skills, fine-tuning on a few good examples often fully unlocked them.",
@@ -426,8 +437,8 @@ const PROBS = [
     [["CALM", "https://arxiv.org/abs/2410.02736"]]],
   ["Saturation", "Top models score near the ceiling, so the test can no longer tell them apart or detect new risks.", "Models now score over 90% on popular benchmarks like MMLU, which is why researchers built harder tests such as Humanity's Last Exam (2,500 questions).",
     [["Humanity's Last Exam", "https://arxiv.org/abs/2501.14249"]]],
-  ["Noise and missing error bars", "A score is an estimate with random error. Without error bars, a small gap between two models can be pure chance.", "Anthropic recommends error bars on every eval. When questions share a source, honest error bars were over three times as wide as naive ones; comparing models on the same questions makes the comparison much tighter.",
-    [["Anthropic", "https://www.anthropic.com/research/statistical-approach-to-model-evals"]]],
+  ["Noise and missing error bars", "A score is an estimate with random error. Without error bars, a small gap between two models can be pure chance.", "Anthropic recommends error bars on every eval. When questions share a source, honest error bars were over three times as wide as naive ones; comparing models on the same questions makes the comparison much tighter. Selection can fool you too: OpenAI found that an apparent drop in chain-of-thought monitorability late in reinforcement-learning training, on a sandbagging eval, was a statistical selection artifact. A \"cross-fit\" filter, which picks eligible items using one part of the samples and measures the effect on the rest, removes that bias.",
+    [["Anthropic", "https://www.anthropic.com/research/statistical-approach-to-model-evals"], ["OpenAI, 2026", "https://alignment.openai.com/monitorability-evals"]]],
   ["Goodhart's law", "Once a score is used to train or select models, models get better at the score instead of the trait.", "A thumbs-up reward helped make GPT-4o sycophantic. RLHF made models better at convincing time-limited humans that wrong answers were right. On Chatbot Arena, Meta privately tested 27 model variants before releasing Llama 4, and training on extra arena data gave relative gains of up to 112%.",
     [["OpenAI", "https://openai.com/index/expanding-on-sycophancy/"], ["RLHF study", "https://arxiv.org/abs/2409.12822"], ["The Leaderboard Illusion", "https://arxiv.org/abs/2504.20879"]]]
 ];

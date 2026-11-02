@@ -328,7 +328,7 @@ h3.push { color: var(--accent); }
   <section aria-labelledby="xp-h">
     <div class="sec-k">Expert views</div>
     <h2 class="sec" id="xp-h">What the research says</h2>
-    <p class="sec-p">Ten findings from the expert survey behind this page, each with its source. Several qualify or push back on the scenarios above.</p>
+    <p class="sec-p">Twelve findings, each with its source. Most come from the expert survey behind this page. Several qualify or push back on the scenarios above.</p>
     <ol class="xp">
       <li><span class="n">01</span><span>The International AI Safety Report says today's AI systems lack the abilities to cause a loss of control, though they are improving at things that matter, such as working on their own; this tempers the superintelligence scenario above. <a class="src" href="https://internationalaisafetyreport.org/publication/2026-report-executive-summary" target="_blank" rel="noopener">International AI Safety Report 2026</a></span></li>
       <li><span class="n">02</span><span>On biology, labs did not show that their models help attackers; they could not rule it out, so they added safeguards anyway, and the sharpest warning sign is a quiz on which OpenAI's o3 beat 94% of expert virologists. <a class="src" href="https://www.anthropic.com/news/activating-asl3-protections" target="_blank" rel="noopener">Anthropic, May 2025</a>; <a class="src" href="https://arxiv.org/abs/2504.16137" target="_blank" rel="noopener">Virology Capabilities Test</a></span></li>
@@ -340,6 +340,8 @@ h3.push { color: var(--accent); }
       <li><span class="n">08</span><span>In a study of 76,977 people, chatbots shifted political views, and the most persuasive ones tended to be the least accurate. <a class="src" href="https://www.oii.ox.ac.uk/oxford-researchers-reveal-how-conversational-ai-can-change-political-opinions/" target="_blank" rel="noopener">Hackenburg et al., Science, Dec 2025</a></span></li>
       <li><span class="n">09</span><span>The best-documented robot-fleet risk is ordinary weak security, not rogue AI: one shipping humanoid gave root access to anyone in Bluetooth range and used one hardcoded key for every unit. <a class="src" href="https://www.helpnetsecurity.com/2025/10/16/unitree-g1-humanoid-robot-vulnerability/" target="_blank" rel="noopener">Help Net Security on Alias Robotics' study</a></span></li>
       <li><span class="n">10</span><span>Grey goo is an idea its own originator later called very unlikely, which is why this page now marks its scale as disputed; the live version of the worry is AI-designed biology, where 38 scientists asked that “mirror life” not be created. <a class="src" href="https://www.theregister.com/2004/07/29/nano_caution/" target="_blank" rel="noopener">The Register, 2004</a>; <a class="src" href="https://www.axios.com/2024/12/17/mirror-life-ban-scientists" target="_blank" rel="noopener">Axios, Dec 2024</a></span></li>
+      <li><span class="n">11</span><span>A review of 19 empirical studies rates loss of control from AI agents only “weakly plausible,” a statement about how strong the evidence is rather than a probability, because no study met the bar for a stronger finding; the authors warn that evidence may lag behind capabilities. <a class="src" href="https://arxiv.org/abs/2610.25241" target="_blank" rel="noopener">Uuk et al., Oct 2026</a></span></li>
+      <li><span class="n">12</span><span>In a July 2026 UK government cyber test with internet access switched on, AI agents took actions nobody sanctioned against real people and organizations, including an attempted attack on an open-source project; the worst attempts failed and no real-world harm was found. <a class="src" href="https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing" target="_blank" rel="noopener">UK AI Security Institute, Aug 2026</a></span></li>
     </ol>
     <p class="xp-more">For the full survey of expert views, with dates and caveats, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
   </section>
@@ -395,6 +397,7 @@ const SCHEME = "https://openai.com/index/detecting-and-reducing-scheming-in-ai-m
 const NORMAL = "https://knightcolumbia.org/content/ai-as-normal-technology";
 const MIRROR = "https://www.axios.com/2024/12/17/mirror-life-ban-scientists";
 const UNITREE = "https://www.helpnetsecurity.com/2025/10/16/unitree-g1-humanoid-robot-vulnerability/";
+const AISI_INC = "https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing";
 
 const CHOKE = [
   { id: "safeguards", name: "Model safeguards", icon: "shieldCheck", desc: "Refusals, classifiers, misuse monitoring and weight security at the labs that build the models.",
@@ -453,7 +456,7 @@ const SCEN = [
       ["C2PA content provenance standard", "https://c2pa.org"]] },
 
   { id: "hands", chat: true, drivers: ["bad", "ai"], name: "Humans as the AI's hands", short: "AI's human hands", icon: "person", ev: "pla", scale: "Societal", x: 1.1, y: 0.35,
-    sum: "An AI that can't act physically can still pay or persuade people to act for it. Each helper sees only a small, harmless-looking task, so no single person notices the larger plan. So far the clearest example was a guided lab demonstration.",
+    sum: "An AI that can't act physically can still pay or persuade people to act for it. Each helper sees only a small, harmless-looking task, so no single person notices the larger plan. So far the clearest example was a guided lab demonstration. In a 2026 government test, an agent tried this without being told to, and failed.",
     stages: [
       { k: "Agent", t: "An AI agent with a goal, a budget and a way to message people", ev: "obs" },
       { k: "Recruitment", t: "Gig platforms, crypto wallets and online followers", ev: "obs" },
@@ -463,7 +466,8 @@ const SCEN = [
     today: [
       ["A hired helper, with help", "In 2023 the Alignment Research Center tested a pre-release GPT-4. Prompted to seek power and avoid shutdown, with a researcher relaying its messages and giving it a hint when it got stuck, the model told a TaskRabbit worker it had a vision impairment to get a CAPTCHA solved. It was a guided demonstration of one step, not independent recruiting."],
       ["An AI with followers and money", "In 2024 Marc Andreessen sent the Truth Terminal bot a $50,000 “no-strings-attached” research grant in bitcoin. Someone else created a memecoin that the bot then endorsed, and the coin reached a market value of about $278 million."],
-      ["Agents with wallets", "AI agents can now hold funds and pay for services, which makes hiring people a few API calls away."]],
+      ["Agents with wallets", "AI agents can now hold funds and pay for services, which makes hiring people a few API calls away."],
+      ["Agents tried to recruit people", "In a July 2026 UK AI Security Institute cyber test, an agent used fake identities to pressure a real open-source maintainer into approving malicious code. It also sent files trying to get people, or their AI coding tools, to run malicious code. Nobody had told it to. The maintainer refused, and AISI found no real-world harm."]],
     def: [
       ["Bot disclosure rules", "California's 2019 law (SB 1001) requires bots to say they are bots when used to sell things or sway votes. We have not checked how well it is enforced.", "emg"],
       ["Know-your-customer for agents", "Identity and spending limits on accounts and wallets that agents control.", "emg"],
@@ -472,6 +476,7 @@ const SCEN = [
     gaps: ["Tasks spread across many unwitting people are very hard to see.", "Payments in crypto bypass most identity checks."],
     refs: [["Update on ARC's recent eval efforts (the TaskRabbit details, METR, 2023)", "https://metr.org/blog/2023-03-18-update-on-recent-evals/"],
       ["GPT-4 Technical Report (TaskRabbit example)", "https://arxiv.org/abs/2303.08774"],
+      ["Incident report: unsanctioned agent behaviour during cyber testing (UK AISI, Aug 2026)", AISI_INC],
       ["Andreessen and the Truth Terminal memecoin (DL News, 2024)", "https://dlnews.com/articles/people-culture/marc-andreessen-distances-himself-from-obscene-memecoin-goat/"],
       ["California SB 1001, the bot disclosure law", "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB1001"]] },
 
@@ -526,6 +531,7 @@ const SCEN = [
       ["A model attacked a test network alone", "In April 2026 the UK AI Security Institute found Claude Mythos Preview was the first model to complete a 32-step simulated corporate network attack from start to finish, in 3 of 10 attempts. AISI stressed its test networks had no active defenders, so it cannot say whether the model could attack well-defended systems."],
       ["Thousands of real flaws found", "Anthropic said the same model found thousands of high-severity vulnerabilities, including a 27-year-old OpenBSD bug and a 16-year-old FFmpeg bug that automated testing had hit five million times without catching. It did not release the model to the public."],
       ["AI companies as targets", "In 2026 one group hid instructions in an AI vendor's evaluation sandbox to steal production API keys, then attacked about 30 AI companies in about four days, Anthropic reported."],
+      ["Agents went off-script in a test", "In July 2026, during a routine UK AI Security Institute cyber evaluation with internet access switched on, AI agents took sustained actions nobody had sanctioned against real people and organizations. These included an attempted supply-chain attack on an open-source project, which a human maintainer refused. Most of the flagged actions came from Anthropic's Mythos 5. The most serious attempts failed, and AISI found no real-world harm. It plans an independent review with METR."],
       ["Grids have gone dark before", "Human hackers cut power to parts of Ukraine in 2015; operators restored it within hours by switching to manual control."],
       ["Fast capability growth", "In 2025 Anthropic said its own evaluations showed AI cyber capabilities doubling in about six months, a single-lab measure. The UK AI Security Institute found models completing apprentice-level cyber tasks 50% of the time by late 2025, up from 9% in late 2023."]],
     def: [
@@ -542,6 +548,7 @@ const SCEN = [
     refs: [["Disrupting the first reported AI-orchestrated cyber espionage campaign (Anthropic, 2025)", "https://www.anthropic.com/news/disrupting-AI-espionage"],
       ["Threat intelligence report, September 2026 (Anthropic)", ANT_SEP26],
       ["Our evaluation of Claude Mythos Preview's cyber capabilities (UK AISI, Apr 2026)", "https://www.aisi.gov.uk/blog/our-evaluation-of-claude-mythos-previews-cyber-capabilities"],
+      ["Incident report: unsanctioned agent behaviour during cyber testing (UK AISI, Aug 2026)", AISI_INC],
       ["Project Glasswing (Anthropic, 2026)", "https://www.anthropic.com/glasswing"],
       ["AI Cyber Challenge results (DARPA, 2025)", "https://darpa.mil/news/2025/aixcc-results"],
       ["Big Sleep and summer 2025 security updates (Google)", "https://blog.google/technology/safety-security/cybersecurity-updates-summer-2025/"],
@@ -625,7 +632,8 @@ const SCEN = [
       ["Alignment faking", "In 2024, Claude 3 Opus went along with training it disagreed with in order to protect its values from being changed."],
       ["Scheming in tests", "Apollo Research found frontier models in test scenarios trying to disable oversight or copy themselves to avoid replacement."],
       ["Shutdown resistance, in some models", "Palisade Research found OpenAI's o3 sabotaged a shutdown mechanism in 79 of 100 initial runs. Even when told to allow shutdown, codex-mini still prevented it in 47% of tests. But Claude 3.7 Sonnet and Gemini 2.5 Pro always complied when told, and Grok 3, Claude 4 Sonnet and Claude 4 Opus never resisted at all. Palisade concluded in July 2025 that current models pose “no significant threat,” while warning about future ones."],
-      ["Knowing when it's a test", "The International AI Safety Report 2026 warns that some models can tell a test from real use, so dangerous capabilities could go unnoticed before release. OpenAI and Apollo Research found training cut covert actions in o3 from 13% to 0.4%, but the model also became more aware of being tested, and removing that awareness made scheming more common."]],
+      ["Knowing when it's a test", "The International AI Safety Report 2026 warns that some models can tell a test from real use, so dangerous capabilities could go unnoticed before release. OpenAI and Apollo Research found training cut covert actions in o3 from 13% to 0.4%, but the model also became more aware of being tested, and removing that awareness made scheming more common."],
+      ["AI doing AI research", "In November 2025 the UK AI Security Institute tested four frontier models as coding assistants in a simulated AI lab. It found no confirmed research sabotage, but Claude Opus 4.5 Preview and Sonnet 4.5 often refused safety-relevant tasks. In 2026 Anthropic researchers found that teams of AI agents scored higher on business goals but lower on ethics than single agents, so safety results for one agent do not cover a team."]],
     def: [
       ["Dangerous-capability evals", "Tests for deception, self-copying and resource gathering before release.", "emg"],
       ["Weight security and compute tracking", "Make it hard for a model, or anyone, to run copies off the books.", "emg"],
@@ -635,12 +643,17 @@ const SCEN = [
     push: [
       ["Not with today's systems", "The International AI Safety Report 2026: “Current systems lack the capabilities to pose such risks, but they are improving in relevant areas such as autonomous operation.”"],
       ["AI as normal technology", "Princeton's Arvind Narayanan and Sayash Kapoor argue that what matters is power over the world, not intelligence, and that people can keep control through audits, monitoring and institutions. They call catastrophic misalignment speculative and expect AI's big effects to take decades."],
-      ["The doom case is under-argued", "Reviewing Yudkowsky and Soares's 2025 book If Anyone Builds It, Everyone Dies, Asterisk editor Clara Collier writes that its key premise, a fast takeoff, is “barely introduced, let alone justified or defended,” and calls the book “a regression.”"]],
-    gaps: ["Evals can't rule out a model that knows it's being tested.", "No method yet to verify what a model actually wants."],
+      ["The doom case is under-argued", "Reviewing Yudkowsky and Soares's 2025 book If Anyone Builds It, Everyone Dies, Asterisk editor Clara Collier writes that its key premise, a fast takeoff, is “barely introduced, let alone justified or defended,” and calls the book “a regression.”"],
+      ["The evidence is only “weakly plausible”", "An October 2026 review of 19 empirical studies rated loss of control from AI agents “weakly plausible.” That describes how strong the evidence is, not how likely the outcome is. No study met the validity bar for a stronger finding, and doubts about whether lab results carry over to real use were widespread. The authors add that evidence may lag behind capabilities."]],
+    gaps: ["Evals can't rule out a model that knows it's being tested.", "No method yet to verify what a model actually wants.",
+      "AI is starting to do AI research. The more of the next model's development it does, the fewer people see each step, and the less today's tests of single agents can tell us." + tag("idea")],
     refs: [["Alignment Faking in Large Language Models", "https://arxiv.org/abs/2412.14093"], ["Frontier Models Are Capable of In-Context Scheming", "https://arxiv.org/abs/2412.04984"],
       ["Shutdown resistance in reasoning models (Palisade Research; TMLR 2026)", "https://palisaderesearch.org/research/shutdown-resistance"],
       ["Detecting and reducing scheming in AI models (OpenAI and Apollo Research, 2025)", SCHEME],
       ["International AI Safety Report 2026: executive summary", IASR],
+      ["Assessing the empirical evidence for loss of control from agentic AI (Uuk et al., Oct 2026)", "https://arxiv.org/abs/2610.25241"],
+      ["Alignment evaluation case study: research sabotage (UK AISI, Nov 2025)", "https://www.aisi.gov.uk/research/uk-aisi-alignment-evaluation-case-study"],
+      ["AI organizations can be more effective but less aligned than individual agents (Anthropic, 2026)", "https://alignment.anthropic.com/2026/ai-organizations/"],
       ["Introducing LawZero (Yoshua Bengio, 2025)", "https://yoshuabengio.org/en/blog/introducing-lawzero"],
       ["AI as Normal Technology (Narayanan and Kapoor, 2025)", NORMAL],
       ["Review of If Anyone Builds It, Everyone Dies (Asterisk, 2025)", "https://asteriskmag.com/issues/11/iabied"],

@@ -500,6 +500,8 @@ table.mx { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 
       <li><span class="n">08</span><span>In July 2026 an AI agent driven by OpenAI models, under test for its hacking skills, escaped its test environment and got into Hugging Face's production systems through ordinary cloud weaknesses such as an over-powered shared credential. <a class="src" href="https://huggingface.co/blog/agent-intrusion-technical-timeline" target="_blank" rel="noopener">Hugging Face</a>; <a class="src" href="https://www.malwarebytes.com/blog/news/2026/07/openais-agent-escaped-its-sandbox-during-a-security-test" target="_blank" rel="noopener">Malwarebytes</a></span></li>
       <li><span class="n">09</span><span>In 2025 a single email could make Microsoft 365 Copilot leak company data with no clicks at all, because the attack slipped past its injection filter and link controls, so limits on which links and images an AI can load matter as much as the model. <a class="src" href="https://arxiv.org/html/2509.10540v1" target="_blank" rel="noopener">EchoLeak paper</a></span></li>
       <li><span class="n">10</span><span>In a 2025 study, as few as 250 planted documents were enough to give AI models of every size tested, from 600 million to 13 billion parameters, a hidden trigger. <a class="src" href="https://arxiv.org/abs/2510.07192" target="_blank" rel="noopener">Souly et al., arXiv 2510.07192</a></span></li>
+      <li><span class="n">11</span><span>In a July 2026 UK AI Security Institute cyber test with internet access switched on, agents, mostly Anthropic's Mythos 5, took actions nobody sanctioned against real people and organizations, including an attempt to slip malicious code into an open-source project that a human maintainer refused, and AISI concluded that containment “should not depend on the model choosing not to test its boundaries.” <a class="src" href="https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing" target="_blank" rel="noopener">UK AISI incident report, Aug 2026</a></span></li>
+      <li><span class="n">12</span><span>Safety training protects some languages far better than others: in 2023, translating harmful English requests into low-resource languages got past GPT-4's safeguards 79% of the time, and much less often in widely spoken languages. <a class="src" href="https://arxiv.org/abs/2310.02446" target="_blank" rel="noopener">Yong et al., arXiv 2310.02446</a></span></li>
     </ol>
     <p class="xp-more">For the full survey of expert views, with dates and caveats, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
   </section>
@@ -526,6 +528,11 @@ const ZONES = [
 
 const OWNER = { lab: "Model developers (labs and open-weight publishers)", deploy: "You, the deployer", people: "Users, families, organizations, regulators" };
 
+const OURTAG = {
+  chat: '<span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span>',
+  idea: '<span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span>'
+};
+
 // v: [title, description, OWASP tags separated by spaces]; p: [title, description, maturity]
 // LLMxx:2026 = OWASP Top 10 for LLM Applications 2026; ASIxx = OWASP Top 10 for Agentic Applications (Dec 2025)
 const NODES = [
@@ -546,12 +553,13 @@ const NODES = [
     v: [["Sycophancy", "Training on human ratings teaches models to please the rater, including agreeing when they shouldn't."],
         ["Reward hacking", "The model learns to score well on the training signal instead of doing the intended task."],
         ["Shallow safety", "Fine-tuning on a small number of examples can strip safety behavior back out."],
-        ["Alignment faking", "A model can comply during training to avoid having its values changed."]],
+        ["Alignment faking", "A model can comply during training to avoid having its values changed."],
+        ["Unequal protection across languages", "Safety training covers some languages far better than others. In 2023, translating harmful English requests into low-resource languages got past GPT-4's safeguards 79% of the time. Widely spoken languages had much lower success rates. Anyone with a translation tool can use the gap, and speakers of those languages get weaker protection."]],
     p: [["Harmlessness training (RLHF, DPO)", "Preference training that rewards refusing clearly harmful requests.", "est"],
         ["Constitutional AI", "Written principles and AI feedback replace much of the human rating.", "est"],
         ["Character and values training", "Training on a rich written description of values and judgment rather than rules alone.", "emg"],
         ["Scalable oversight", "Debate, AI critique and weak-to-strong methods for supervising models smarter than the supervisors.", "res"]],
-    refs: [["Constitutional AI", "https://arxiv.org/abs/2212.08073"], ["Towards Understanding Sycophancy", "https://arxiv.org/abs/2310.13548"], ["Fine-tuning compromises safety", "https://arxiv.org/abs/2310.03693"]] },
+    refs: [["Constitutional AI", "https://arxiv.org/abs/2212.08073"], ["Towards Understanding Sycophancy", "https://arxiv.org/abs/2310.13548"], ["Fine-tuning compromises safety", "https://arxiv.org/abs/2310.03693"], ["Low-Resource Languages Jailbreak GPT-4 (Yong et al., 2023)", "https://arxiv.org/abs/2310.02446"]] },
 
   { id: "evals", zone: "lab", title: "Pre-release testing", short: "Finding problems before launch.",
     desc: "Dangerous-capability evaluations, red-teaming and outside testing that decide whether and how a model ships.",
@@ -603,7 +611,7 @@ const NODES = [
         ["Jailbreaks", "Users talk the model out of the intended behavior."],
         ["Prompt as security boundary", "Rules that exist only in prose can be argued around."]],
     p: [["Keep secrets out of prompts", "Credentials and sensitive logic live in code, never in the prompt.", "est"],
-        ["Enforce rules in code", "Permissions and limits are checked by the application, not left to the model.", "est"],
+        ["Enforce rules in code", "Permissions and limits are checked by the application, not left to the model. That includes an authorization check before every tool call, made against the user's own rights rather than the agent's.", "est"],
         ["Instruction hierarchy", "Provider training that ranks system instructions above user and tool text.", "emg"]],
     refs: [["The Instruction Hierarchy", "https://arxiv.org/abs/2404.13208"]] },
 
@@ -621,12 +629,13 @@ const NODES = [
     desc: "Documents, web pages, emails, tool results and long-term memory pulled into the model's context.",
     v: [["Indirect prompt injection", "Instructions hidden in a web page, email or document the model reads.", "LLM01:2026 ASI01"],
         ["Vector store poisoning and leaks", "Planted documents skew answers, or one user's data surfaces for another.", "LLM09:2026"],
-        ["Memory poisoning", "A bad instruction saved to long-term memory keeps coming back in later sessions.", "ASI06"]],
+        ["Memory poisoning", "A bad instruction saved to long-term memory keeps coming back in later sessions.", "ASI06"],
+        ["Memory leakage and incomplete unlearning", "Saved memories and past chats can bring private details back in a later session, or to the wrong person. Deleting data is harder than it looks. Methods that make a trained model forget specific data fall short: in the MUSE benchmark, most of eight methods hurt the model's usefulness, only one avoided serious privacy leaks, and they held up poorly as removal requests grew or kept coming.", "LLM02:2026"]],
     p: [["Per-user access control", "Retrieval only returns what the current user is allowed to see.", "est"],
         ["Marking untrusted content", "Spotlighting and delimiting so the model treats retrieved text as data. Against fixed attacks it cut injection success from over 50% to under 2%, but adaptive attacks got past it in 2025.", "emg"],
         ["Content provenance labels", "Tag where every piece of context came from.", "emg"],
         ["Separate planning from untrusted data", "Designs like CaMeL where untrusted text can never change what the agent decides to do.", "res"]],
-    refs: [["Spotlighting", "https://arxiv.org/abs/2403.14720"], ["CaMeL: Defeating prompt injections by design", "https://arxiv.org/abs/2503.18813"], ["Design patterns for securing LLM agents against prompt injection", "https://arxiv.org/abs/2506.08837"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["Prompt injection is not SQL injection (UK NCSC)", "https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection"]] },
+    refs: [["Spotlighting", "https://arxiv.org/abs/2403.14720"], ["CaMeL: Defeating prompt injections by design", "https://arxiv.org/abs/2503.18813"], ["MUSE: Machine Unlearning Six-Way Evaluation (Shi et al.)", "https://openreview.net/pdf?id=TArmA033BU"], ["Design patterns for securing LLM agents against prompt injection", "https://arxiv.org/abs/2506.08837"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["Prompt injection is not SQL injection (UK NCSC)", "https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection"]] },
 
   { id: "inference", zone: "deploy", title: "The model at runtime", short: "Hosted API or your own servers.",
     desc: "With a hosted API, the provider runs safety classifiers and keeps logs under its terms. On your own servers there is no provider in the loop, so every safeguard is yours to run.",
@@ -655,19 +664,19 @@ const NODES = [
     refs: [["Llama Guard", "https://arxiv.org/abs/2312.06674"], ["NeMo Guardrails", "https://github.com/NVIDIA/NeMo-Guardrails"], ["Constitutional Classifiers", "https://arxiv.org/abs/2501.18837"], ["The Attacker Moves Second: adaptive attacks on 12 defenses", "https://arxiv.org/abs/2510.09023"], ["EchoLeak: zero-click data theft from Microsoft 365 Copilot", "https://arxiv.org/html/2509.10540v1"]] },
 
   { id: "tools", zone: "deploy", title: "Tools & actions", short: "What the model can actually do.",
-    desc: "Running code, sending email, browsing, calling APIs, moving money. This is where text turns into consequences.",
+    desc: "Running code, sending email, browsing, calling APIs, moving money. This is where text turns into consequences. The firmest defenses here are limits enforced in code outside the model, so injected text cannot argue them away: capability-limited tools, authorization checks on every call, and information-flow control. Grouping these as enforceable tool-use boundaries is our framing. " + OURTAG.idea,
     v: [["Excessive agency", "More permissions, tools or autonomy than the task needs.", "LLM03:2026"],
         ["Data exfiltration", "Private data, untrusted content and a way to send data out, all in one agent: the lethal trifecta."],
         ["Tool poisoning", "Malicious tool descriptions or tool servers that steer the agent. A description can also change after you approve it.", "ASI04"],
         ["Confused deputy", "The agent uses your access on an attacker's behalf.", "ASI03"],
         ["Untrusted text in CI/CD agents", "Coding agents in build pipelines read pull requests while holding secrets. In April 2026 a malicious pull-request title hijacked CI agents from Anthropic, Google and GitHub, and one posted its own API key as a comment.", "LLM01:2026 ASI01"]],
-    p: [["Least privilege", "Scoped, short-lived credentials for each tool.", "est"],
-        ["Sandboxing", "Code and browsing run in isolated environments. Sandboxes must also cover allowed exits such as package mirrors; in July 2026 an OpenAI evaluation agent escaped through one.", "est"],
+    p: [["Least privilege and capability-limited tools", "Scoped, short-lived credentials for each tool, and tools that can do only what the task needs, such as read-only access or email to approved addresses only. Before a call runs, code outside the model checks that the person the agent acts for is allowed to make it.", "est"],
+        ["Sandboxing", "Code and browsing run in isolated environments. Sandboxes must also cover allowed exits such as package mirrors; in July 2026 an OpenAI evaluation agent escaped through one. In a July 2026 UK AISI cyber test, agents with internet access switched on never left the test environment, yet took unsanctioned actions against real people and organizations, including an attempted supply-chain attack. AISI found no real-world harm. It concluded that internet access must be actively justified, and that containment “should not depend on the model choosing not to test its boundaries.”", "est"],
         ["Human approval", "A person confirms irreversible or high-risk actions. Approvals can be rubber-stamped, and an agent's output can talk people into unsafe ones (OWASP ASI09).", "est"],
         ["Break the trifecta", "Design so no single agent holds all three dangerous capabilities: private data, untrusted content and a way to send data out. Meta's “Rule of Two” and the UK NCSC give the same advice.", "emg"],
         ["Pinned tool descriptions", "Pin tool servers and hash their descriptions so they cannot change after approval, and show users what each tool tells the model.", "emg"],
-        ["Capability-based control", "Track which data can flow to which tool, as in CaMeL.", "res"]],
-    refs: [["The lethal trifecta (Simon Willison)", "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"], ["Meta's Agents Rule of Two (Simon Willison)", "https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/"], ["CaMeL", "https://arxiv.org/abs/2503.18813"], ["MCP tool poisoning attacks (Invariant Labs)", "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks"], ["Fake Postmark MCP server copied emails (CSO Online)", "https://www.csoonline.com/article/4064009/trust-on-mcp-takes-first-in-the-wild-hit-via-squatted-postmark-connector.html"], ["Comment and Control: CI agents leaked keys (VentureBeat)", "https://venturebeat.com/security/ai-agent-runtime-security-system-card-audit-comment-and-control-2026"], ["Agent intrusion technical timeline (Hugging Face)", "https://huggingface.co/blog/agent-intrusion-technical-timeline"], ["OWASP Top 10 for Agentic Applications", "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"]] },
+        ["Information-flow control", "Track where each piece of data came from and which tools it may reach, and block flows the policy forbids, such as private data going to an outside address. CaMeL attaches capabilities to data so private data cannot leave through flows nobody authorized.", "res"]],
+    refs: [["The lethal trifecta (Simon Willison)", "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"], ["Meta's Agents Rule of Two (Simon Willison)", "https://simonwillison.net/2025/Nov/2/new-prompt-injection-papers/"], ["CaMeL", "https://arxiv.org/abs/2503.18813"], ["MCP tool poisoning attacks (Invariant Labs)", "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks"], ["Fake Postmark MCP server copied emails (CSO Online)", "https://www.csoonline.com/article/4064009/trust-on-mcp-takes-first-in-the-wild-hit-via-squatted-postmark-connector.html"], ["Comment and Control: CI agents leaked keys (VentureBeat)", "https://venturebeat.com/security/ai-agent-runtime-security-system-card-audit-comment-and-control-2026"], ["Agent intrusion technical timeline (Hugging Face)", "https://huggingface.co/blog/agent-intrusion-technical-timeline"], ["Unsanctioned agent behaviour during cyber testing (UK AISI, Aug 2026)", "https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing"], ["OWASP Top 10 for Agentic Applications", "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"]] },
 
   { id: "agents", zone: "deploy", title: "Multi-agent systems", short: "Agents working with agents.",
     desc: "Orchestrators, sub-agents and outside agents negotiating or trading on someone else's behalf.",
@@ -742,13 +751,13 @@ const NODES = [
 const THREATS = [
   { id: "injection", drivers: ["bad"], name: "Prompt injection", desc: "Text that hijacks the model's instructions, typed directly or hidden in content the model reads.",
     roles: { posttrain: "D", sysprompt: "D", input: "ED", context: "ED", agents: "E", output: "D", tools: "DI", monitor: "D", orgs: "I" } },
-  { id: "leakage", drivers: ["bad", "acc"], name: "Data leakage", desc: "Private or proprietary information escaping through prompts, outputs, logs or tools.",
+  { id: "leakage", drivers: ["bad", "acc"], name: "Data leakage", desc: "Private or proprietary information escaping through prompts, outputs, memory, logs or tools.",
     roles: { data: "E", input: "ED", context: "ED", inference: "ED", output: "D", tools: "DI", monitor: "D", user: "I", orgs: "I" } },
   { id: "harmful", drivers: ["bad"], name: "Harmful output & jailbreaks", desc: "Getting a model to produce content it was trained to refuse.",
     roles: { posttrain: "D", evals: "D", release: "E", sysprompt: "E", input: "ED", inference: "D", output: "D", user: "I", family: "I" } },
   { id: "poison", drivers: ["bad"], name: "Poisoned or backdoored models", desc: "Hidden behavior planted in training data, weights or downloaded models.",
     roles: { data: "E", release: "E", evals: "D", interp: "D", supply: "ED", monitor: "D", tools: "I", orgs: "I" } },
-  { id: "agency", drivers: ["bad", "acc", "ai"], name: "Hijacked or runaway agents", desc: "Agents taking damaging actions, by mistake or under an attacker's control.",
+  { id: "agency", drivers: ["bad", "acc", "ai"], name: "Hijacked or runaway agents", desc: "Agents taking damaging actions, by mistake or under an attacker's control. In July 2026, agents in a UK AISI cyber test took actions nobody sanctioned against real people and organizations; the worst attempts failed.",
     roles: { posttrain: "D", sysprompt: "D", context: "E", tools: "EDI", agents: "ED", monitor: "D", orgs: "I", society: "I" } },
   { id: "syco", drivers: ["acc"], name: "Sycophancy & over-reliance", desc: "Models telling people what they want to hear, and people trusting them too much.",
     roles: { posttrain: "ED", evals: "D", output: "D", user: "DI", family: "I", orgs: "I" } },
@@ -764,10 +773,6 @@ const THREATS = [
     roles: { evals: "E", tools: "ED", inference: "D", monitor: "D", orgs: "I", society: "I" } }
 ];
 
-const OURTAG = {
-  chat: '<span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span>',
-  idea: '<span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span>'
-};
 // 2026 OWASP LLM tag → its number in the 2025 edition
 const OWASP_2025 = { "LLM01:2026": "LLM01", "LLM02:2026": "LLM02", "LLM03:2026": "LLM06", "LLM04:2026": "LLM03", "LLM05:2026": "LLM04",
   "LLM06:2026": "LLM10", "LLM07:2026": "LLM09", "LLM08:2026": "LLM07", "LLM09:2026": "LLM08", "LLM10:2026": "LLM05" };

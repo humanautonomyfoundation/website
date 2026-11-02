@@ -180,6 +180,9 @@ table.mx { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 
 .hp { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
 .hp b { font-weight: 600; font-size: 15px; }
 .hp p { margin: 0; font-size: 14px; color: var(--muted); }
+.hp.wide { grid-column: 1 / -1; }
+.hp .pr { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.hp .pr.old { color: var(--muted); }
 
 .foot { padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 92ch; }
 .foot p { margin: 0; }
@@ -291,11 +294,16 @@ h2.sec .ourtag { margin-left: 4px; font-stretch: normal; }
   <section aria-labelledby="help-h">
     <div class="sec-k">Where to contribute</div>
     <h2 class="sec" id="help-h">Gaps a small research group could own <span class="ourtag chat" title="A topic the editors chose to focus on">Editor’s focus</span> <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></h2>
+    <p class="sec-p">Revised on 31 October 2026. The first six cards follow our ranking of research priorities: three priorities, an alternative for each kind of funder, and four more areas. The last two are earlier ideas we still track.</p>
     <div class="help">
-      <div class="hp"><b>Test the defenses that cover several risks</b><p>Simulate oversight protocols and graduated permissions for agents, and measure what a trusted monitor actually catches.</p></div>
-      <div class="hp"><b>Fleet command limits <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></b><p>We found no standard that limits what one controller can order a fleet of cars or robots to do. As far as we know, nobody owns this problem yet. We have not checked ISO or UNECE work on automated driving.</p></div>
-      <div class="hp"><b>Measure structural drift</b><p>Track how much critical decision-making depends on AI, so slow loss of control becomes visible.</p></div>
-      <div class="hp"><b>Independent guardrail testing</b><p>Publish open, repeatable tests of how well deployers' protections hold up, starting with prompt injection.</p></div>
+      <div class="hp"><span class="pr">Priority 1</span><b>Evals that predict real-world failures</b><p>Build tests whose results match how agents behave in deployment, including models that act differently when they know they're being tested.</p></div>
+      <div class="hp"><span class="pr">Priority 2</span><b>Incident measurement and safety cases</b><p>Standardize how agent incidents are recorded, collect exposure figures such as agent-hours, and test whether safety cases predict fewer incidents. This needs data-sharing partners.</p></div>
+      <div class="hp"><span class="pr">Priority 3</span><b>Safety that survives updates</b><p>Check whether safety holds after fine-tuning, quantization, model merging, memory changes, and reinforcement learning with reward hacking.</p></div>
+      <div class="hp"><span class="pr">Alternative · catastrophic-risk funders</span><b>Control and monitoring under pressure</b><p>Simulate oversight protocols and graduated permissions for agents, and measure what a trusted monitor actually catches under adversarial pressure, including agents colluding.</p></div>
+      <div class="hp"><span class="pr">Alternative · near-term funders</span><b>Enforceable tool-use boundaries</b><p>Publish open, repeatable tests of how well deployers' protections hold up against prompt injection. Test enforceable tool limits too: information-flow control, capability-limited tools and authorization checks.</p></div>
+      <div class="hp"><span class="pr">Also worth funding</span><b>Four more areas</b><p>Safety of automated AI research and development; verification of compute and international agreements; multilingual safety and unequal protection across languages; privacy, memory leakage and durable unlearning.</p></div>
+      <div class="hp"><span class="pr old">Earlier idea</span><b>Fleet command limits <span class="ourtag idea" title="Our own framing or judgment, not taken from a published source">Our analysis</span></b><p>We found no standard aimed at limiting what one controller can order a fleet of cars or robots to do. Vehicle cybersecurity and software updates are already regulated under UN R155/R156 and ISO/SAE 21434, so this work would sit alongside that community.</p></div>
+      <div class="hp"><span class="pr old">Earlier idea</span><b>Measure structural drift</b><p>Track how much critical decision-making depends on AI, so slow loss of control becomes visible.</p></div>
     </div>
   </section>
 
@@ -314,6 +322,8 @@ h2.sec .ourtag { margin-left: 4px; font-stretch: normal; }
       <li><span class="n">08</span><span>In April 2025, Nobel laureate Geoffrey Hinton told CBS there is a “sort of 10 to 20%” chance that AI systems could eventually seize control. <a class="src" href="https://www.yahoo.com/news/godfather-ai-says-hes-glad-110151161.html" target="_blank" rel="noopener">Yahoo News on Hinton's CBS interview</a></span></li>
       <li><span class="n">09</span><span>Arvind Narayanan and Sayash Kapoor of Princeton call catastrophic misalignment “(by far) the most speculative” of the risks they discuss, which runs against this page's red highlight on “the AI itself.” <a class="src" href="https://knightcolumbia.org/content/ai-as-normal-technology" target="_blank" rel="noopener">AI as Normal Technology</a></span></li>
       <li><span class="n">10</span><span>Skeptics make different points: 76% of 475 researchers in a 2025 AAAI survey doubt that scaling up today's methods will reach human-level AI, and Timnit Gebru argues that extinction talk distracts from harms happening now. <a class="src" href="https://the-decoder.com/most-ai-researchers-are-skeptical-about-language-models-achieving-agi/" target="_blank" rel="noopener">The Decoder on the AAAI survey</a>; <a class="src" href="https://aiweekly.co/alerts/gebru-tells-wired-ai-machine-god-talk-is-a-distraction" target="_blank" rel="noopener">AI Weekly on Gebru's WIRED interview</a></span></li>
+      <li><span class="n">11</span><span>An October 2026 review rated the evidence for loss of control from AI agents only “weakly plausible.” That describes how strong the evidence is, not a probability. No study met the validity bar for a stronger finding, and gaps in external validity were widespread. <a class="src" href="https://arxiv.org/abs/2610.25241" target="_blank" rel="noopener">Uuk et al., 2026</a></span></li>
+      <li><span class="n">12</span><span>Asking a model how it would act in a made-up scenario does not reliably predict how an agent built on it behaves, so questionnaire-style safety tests say little about real-world risk. <a class="src" href="https://arxiv.org/abs/2603.14417" target="_blank" rel="noopener">Hellrigel-Holderbaum and Young, 2026</a></span></li>
     </ol>
     <p class="xp-more">For the full survey of expert views, with dates and caveats, see <a href="experts.html">AI Safety: What the Experts Say</a>.</p>
   </section>
@@ -542,7 +552,7 @@ ICONS.film = '<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M7 5
 ICONS.network = '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M10.8 7.2L6.2 15.8M13.2 7.2l4.6 8.6M7.5 18h9"/>';
 const DOORS2 = [
   ["governance.html", "scale", "AI Governance Map", "Who sets the rules, and how binding are they?", "Laws, orders, treaties and company policies by jurisdiction, with a timeline, coverage by driver and the live debates. Current as of October 2026."],
-  ["measuring.html", "gauge", "Measuring AI Safety", "How do we know whether a model is safe?", "Seven families of safety evals, seven ways measurement goes wrong, and a hands-on sycophancy protocol."],
+  ["measuring.html", "gauge", "Measuring AI Safety", "How do we know whether a model is safe?", "Seven families of safety evals, nine ways measurement goes wrong, and a hands-on sycophancy protocol."],
   ["ecosystem.html", "network", "AI Safety Ecosystem", "Who is working on this?", "73 organizations, how money, people and access flow between them, and the landmark papers from 2016 to 2026."],
   ["fiction.html", "film", "AI Fiction Atlas", "How do the famous stories compare?", "Twenty-two AI stories from film, books, TV and games, mapped to these risks and checked against what has actually happened."]
 ];
