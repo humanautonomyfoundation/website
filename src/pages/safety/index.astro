@@ -87,6 +87,25 @@ const groups = [
       },
     ],
   },
+  {
+    id: 'deep-dives',
+    label: 'Deep dives',
+    intro: 'The technical detail behind our top research priority.',
+    pages: [
+      {
+        title: 'Evaluations That Predict Real-World Failures',
+        href: '/safety/evals-deep-dive.html',
+        blurb:
+          'The core technical problem, six sub-areas to master, a six-month pilot project, and the sources to study in order.',
+      },
+      {
+        title: 'Paper Deep Dives',
+        href: '/safety/papers.html',
+        blurb:
+          'Fourteen key papers and reports on eval validity, test awareness, sandbagging, statistics and real incidents, each with method, key numbers, limitations and how to use it.',
+      },
+    ],
+  },
 ];
 
 // Our ranking of where research would do the most good. Our own analysis.
@@ -96,7 +115,10 @@ const priorities = [
     title: 'Evaluations that predict real-world failures',
     why: 'Safety decisions rest on pre-release tests, but no one has shown that test scores predict how deployed AI agents fail. Models also increasingly notice when they are being tested.',
     work: 'Test whether scores predict deployment failures, measure how behavior shifts between tests and real use, and detect deliberate underperformance.',
-    links: [{ label: 'How it is measured today', href: '/safety/measuring.html' }],
+    links: [
+      { label: 'Deep dive', href: '/safety/evals-deep-dive.html' },
+      { label: '14 paper deep dives', href: '/safety/papers.html' },
+    ],
   },
   {
     rank: 2,
@@ -136,7 +158,7 @@ const paths = [
     steps: [
       { title: 'AI Catastrophe Pathways', href: '/safety/pathways.html' },
       { title: 'AI Governance Map', href: '/safety/governance.html' },
-      { title: 'AI Safety Ecosystem', href: '/safety/ecosystem.html' },
+      { title: 'Evals deep dive', href: '/safety/evals-deep-dive.html' },
     ],
   },
 ];
