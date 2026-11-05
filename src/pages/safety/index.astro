@@ -40,7 +40,7 @@ const groups = [
   {
     id: 'response',
     label: 'The response',
-    intro: 'How AI is governed and measured, and who is working on it.',
+    intro: 'How AI is governed, measured and defended.',
     pages: [
       {
         title: 'AI Governance Map',
@@ -55,23 +55,29 @@ const groups = [
           'How AI safety is measured, nine ways measurement goes wrong, whether test results predict real behavior, and a close look at sycophancy and honesty.',
       },
       {
-        title: 'AI Safety Ecosystem',
-        href: '/safety/ecosystem.html',
+        title: 'AI Defense Stack',
+        href: '/safety/defense.html',
         blurb:
-          'The organizations, funders and landmark papers that make up the AI safety field, and where a new research group would fit.',
+          'Where each safety defense sits, from training data to an agent taking an action, what it catches, where it fails, and which threats slip through every layer.',
       },
     ],
   },
   {
     id: 'perspectives',
     label: 'Perspectives',
-    intro: 'What experts say, and how fiction compares.',
+    intro: 'What experts say, who is working on it, and how fiction compares.',
     pages: [
       {
         title: 'What the Experts Say',
         href: '/safety/experts.html',
         blurb:
           'What researchers, governments and other authoritative sources say about AI risk, alignment, security, governance and evaluation.',
+      },
+      {
+        title: 'AI Safety Ecosystem',
+        href: '/safety/ecosystem.html',
+        blurb:
+          'The organizations, funders and landmark papers that make up the AI safety field, and where a new research group would fit.',
       },
       {
         title: 'AI Fiction Atlas',
@@ -83,13 +89,65 @@ const groups = [
   },
 ];
 
+// Our ranking of where research would do the most good. Our own analysis.
+const priorities = [
+  {
+    rank: 1,
+    title: 'Evaluations that predict real-world failures',
+    why: 'Safety decisions rest on pre-release tests, but no one has shown that test scores predict how deployed AI agents fail. Models also increasingly notice when they are being tested.',
+    work: 'Test whether scores predict deployment failures, measure how behavior shifts between tests and real use, and detect deliberate underperformance.',
+    links: [{ label: 'How it is measured today', href: '/safety/measuring.html' }],
+  },
+  {
+    rank: 2,
+    title: 'Incident measurement and evidence-based safety cases',
+    why: 'No one can say how often deployed agents misbehave, because incident reports lack shared formats and exposure figures. Safety cases rarely connect to what actually happens.',
+    work: 'A common way to record incidents, failure rates with denominators such as agent-hours, and tests of whether safety cases predict fewer incidents.',
+    links: [{ label: 'Where it sits in the stack', href: '/safety/defense.html' }],
+  },
+  {
+    rank: 3,
+    title: 'Safety that survives training, adaptation and updates',
+    why: 'A model that passes safety tests at release keeps changing through fine-tuning, compression, merging and further training. Safety can erode at each step, and cheating learned in training can spread.',
+    work: 'Map which everyday changes break safety across model families, and find cheap regression checks that catch it before deployment.',
+    links: [{ label: 'The defenses involved', href: '/safety/defense.html' }],
+  },
+];
+
+const paths = [
+  {
+    who: 'New to AI risk',
+    steps: [
+      { title: 'AI Risk Landscape', href: '/safety/landscape.html' },
+      { title: 'AI Fiction Atlas', href: '/safety/fiction.html' },
+      { title: 'What the Experts Say', href: '/safety/experts.html' },
+    ],
+  },
+  {
+    who: 'Building or deploying AI',
+    steps: [
+      { title: 'AI Safety Atlas', href: '/safety/atlas.html' },
+      { title: 'AI Defense Stack', href: '/safety/defense.html' },
+      { title: 'Measuring AI Safety', href: '/safety/measuring.html' },
+    ],
+  },
+  {
+    who: 'Research and policy',
+    steps: [
+      { title: 'AI Catastrophe Pathways', href: '/safety/pathways.html' },
+      { title: 'AI Governance Map', href: '/safety/governance.html' },
+      { title: 'AI Safety Ecosystem', href: '/safety/ecosystem.html' },
+    ],
+  },
+];
+
 const pageCount = 1 + groups.reduce((n, g) => n + g.pages.length, 0);
 const year = new Date().getFullYear();
 ---
 
 <Base
   title="AI Safety"
-  description="A set of reference pages on AI risk: what can go wrong, how it is governed and measured, and what experts say."
+  description="Reference pages on AI risk: what can go wrong, how it is governed, measured and defended, what experts say, and where research should focus."
 >
   <div class="shell">
     <header class="top">
@@ -101,15 +159,16 @@ const year = new Date().getFullYear();
         <p class="eyebrow">Reference set</p>
         <h1>AI Safety</h1>
         <p class="lede">
-          Reference pages on AI risk: what can go wrong, how it is being
-          governed and measured, and what experts say. Most are interactive.
+          Reference pages on AI risk: what can go wrong, how it is governed,
+          measured and defended, what experts say, and where research would do
+          the most good. Most are interactive.
         </p>
         <p class="meta">
           <span>{pageCount} pages</span>
           <span aria-hidden="true">·</span>
-          <span>Sources checked 31 October 2026</span>
+          <span>Sources checked 3 November 2026</span>
           <span aria-hidden="true">·</span>
-          <span>Updated 2 November 2026</span>
+          <span>Updated 3 November 2026</span>
         </p>
       </div>
 
@@ -121,6 +180,59 @@ const year = new Date().getFullYear();
         </span>
         <span class="start-go" aria-hidden="true">&rarr;</span>
       </a>
+
+      <section aria-labelledby="g-focus" class="focus">
+        <header class="group-head">
+          <h2 id="g-focus">Where research should focus</h2>
+          <p>Our ranking of the three research areas that would do the most good.</p>
+        </header>
+        <ol class="prio">
+          {
+            priorities.map((p) => (
+              <li class="prio-card">
+                <span class="prio-rank" aria-hidden="true">{p.rank}</span>
+                <div class="prio-body">
+                  <h3>{p.title}</h3>
+                  <p class="blurb">{p.why}</p>
+                  <p class="prio-work"><span>The work:</span> {p.work}</p>
+                  <p class="prio-links">
+                    {p.links.map((l) => (
+                      <a href={l.href}>{l.label} &rarr;</a>
+                    ))}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="note">
+          Ranked on impact, feasibility, how few groups work on each, and fit
+          with major safety funders. Also important: control and monitoring
+          that hold up when a model works against them, and hard limits on
+          what AI agents' tools can do. This ranking is our own analysis.
+        </p>
+      </section>
+
+      <section aria-labelledby="g-paths">
+        <header class="group-head">
+          <h2 id="g-paths">Reading paths</h2>
+          <p>Three ways through the set, depending on why you're here.</p>
+        </header>
+        <ul class="paths">
+          {
+            paths.map((path) => (
+              <li class="path">
+                <span class="kicker">{path.who}</span>
+                <ol>
+                  {path.steps.map((st) => (
+                    <li><a href={st.href}>{st.title}</a></li>
+                  ))}
+                </ol>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
 
       {
         groups.map((group) => (
@@ -363,6 +475,132 @@ const year = new Date().getFullYear();
   }
 
   .card:hover .card-go {
+    color: var(--accent);
+  }
+
+  /* --- priorities ------------------------------------------------ */
+  .prio {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .prio-card {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.25rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+  }
+
+  .prio-card:first-child {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--rule));
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg-elev));
+  }
+
+  .prio-rank {
+    flex: none;
+    font-family: var(--font-serif);
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--accent);
+    min-width: 1.6rem;
+  }
+
+  .prio-body {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .prio-body h3 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.3rem;
+    line-height: 1.25;
+  }
+
+  .prio-body p {
+    margin: 0;
+  }
+
+  .prio-work {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .prio-work span {
+    font-weight: 600;
+  }
+
+  .prio-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .prio-links a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .prio-links a:hover {
+    text-decoration: underline;
+  }
+
+  .note {
+    margin: 1rem 0 0;
+    max-width: 44rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--ink-faint);
+  }
+
+  /* --- reading paths --------------------------------------------- */
+  .paths {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 44rem) {
+    .paths {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .path {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+
+  .path ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.9375rem;
+  }
+
+  .path a {
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+
+  .path a:hover {
     color: var(--accent);
   }
 
